@@ -28,6 +28,7 @@ type ClickHouseRepository struct {
 // 参数:
 //   - cfg: 应用程序配置，包含数据库连接信息
 //   - logger: 日志记录器实例
+//
 // 返回:
 //   - *ClickHouseRepository: 初始化成功的仓库实例
 //   - error: 初始化过程中的错误信息
@@ -56,8 +57,8 @@ func NewClickHouseRepository(cfg *config.Config, logger *zap.Logger) (*ClickHous
 	}
 
 	// 设置连接池参数
-	db.SetMaxOpenConns(10)       // 最大打开连接数
-	db.SetMaxIdleConns(5)        // 最大空闲连接数
+	db.SetMaxOpenConns(10)                 // 最大打开连接数
+	db.SetMaxIdleConns(5)                  // 最大空闲连接数
 	db.SetConnMaxLifetime(time.Minute * 5) // 连接最大生命周期
 
 	// 测试数据库连接是否正常
@@ -78,6 +79,7 @@ func NewClickHouseRepository(cfg *config.Config, logger *zap.Logger) (*ClickHous
 // maskPassword 隐藏DSN中的密码信息，避免敏感数据泄露到日志中
 // 参数:
 //   - dsn: 原始DSN字符串
+//
 // 返回:
 //   - string: 密码被替换为***的安全DSN字符串
 func maskPassword(dsn string) string {
@@ -87,17 +89,17 @@ func maskPassword(dsn string) string {
 		// 如果没有找到password=，则直接返回原字符串
 		return dsn
 	}
-	
+
 	// 计算密码起始位置（跳过"password="部分）
 	passwordStart += len("password=")
-	
+
 	// 查找密码后的&分隔符位置
 	passwordEnd := strings.Index(dsn[passwordStart:], "&")
 	if passwordEnd == -1 {
 		// 如果&不存在，说明密码在字符串末尾
 		return dsn[:passwordStart] + "***"
 	}
-	
+
 	// 替换密码部分为***并返回
 	return dsn[:passwordStart] + "***" + dsn[passwordStart+passwordEnd:]
 }
@@ -106,20 +108,21 @@ func maskPassword(dsn string) string {
 // 参数:
 //   - ctx: 上下文对象，用于控制请求超时和取消
 //   - log: 错误日志对象，包含要保存的错误信息
+//
 // 返回:
 //   - error: 保存过程中的错误信息，成功则为nil
 func (r *ClickHouseRepository) SaveErrorLog(ctx context.Context, log *models.ErrorLog) error {
 	// 定义SQL插入语句，包含错误日志的所有字段
 	query := `INSERT INTO error_logs (timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, extra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-	
+
 	// 将Extra字段转换为字符串，如果为空则使用空JSON对象
 	extraStr := string(log.Extra)
 	if extraStr == "" {
 		extraStr = "{}"
 	}
-	
+
 	// 执行插入操作，使用ExecContext支持上下文取消和超时
-	_, err := r.DB.ExecContext(ctx, query, 
+	_, err := r.DB.ExecContext(ctx, query,
 		log.Timestamp, log.ProjectID, log.SessionID, log.TraceID, log.UserID,
 		log.URL, log.Referrer, log.Type, log.Name, log.Message, extraStr)
 	if err != nil {
@@ -134,6 +137,7 @@ func (r *ClickHouseRepository) SaveErrorLog(ctx context.Context, log *models.Err
 //   - projectID: 项目标识符
 //   - startTime: 开始时间
 //   - endTime: 结束时间
+//
 // 返回:
 //   - []*models.ErrorLog: 错误日志列表
 //   - error: 查询过程中的错误信息，成功则为nil
@@ -143,7 +147,7 @@ func (r *ClickHouseRepository) GetErrorLogs(ctx context.Context, projectID strin
 		FROM error_logs 
 		WHERE project_id = ? AND timestamp >= ? AND timestamp <= ? 
 		ORDER BY timestamp DESC`
-	
+
 	// 执行查询，使用QueryContext支持上下文取消和超时
 	rows, err := r.DB.QueryContext(ctx, query, projectID, startTime, endTime)
 	if err != nil {
@@ -170,6 +174,7 @@ func (r *ClickHouseRepository) GetErrorLogs(ctx context.Context, projectID strin
 // 参数:
 //   - ctx: 上下文对象，用于控制请求超时和取消
 //   - traceID: 唯一的跟踪标识符
+//
 // 返回:
 //   - *models.ErrorLog: 错误日志对象，如果不存在则为nil
 //   - error: 查询过程中的错误信息，成功或未找到则为nil
@@ -179,13 +184,13 @@ func (r *ClickHouseRepository) GetErrorLogByTraceID(ctx context.Context, traceID
 		FROM error_logs 
 		WHERE trace_id = ? 
 		LIMIT 1`
-	
+
 	var log models.ErrorLog
 	// 使用QueryRowContext执行查询并直接扫描结果
 	err := r.DB.QueryRowContext(ctx, query, traceID).Scan(
 		&log.Timestamp, &log.ProjectID, &log.SessionID, &log.TraceID, &log.UserID,
 		&log.URL, &log.Referrer, &log.Type, &log.Name, &log.Message, &log.Extra)
-	
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// 如果没有找到记录，返回nil, nil
@@ -200,20 +205,21 @@ func (r *ClickHouseRepository) GetErrorLogByTraceID(ctx context.Context, traceID
 // 参数:
 //   - ctx: 上下文对象，用于控制请求超时和取消
 //   - metric: 性能指标对象，包含要保存的性能数据
+//
 // 返回:
 //   - error: 保存过程中的错误信息，成功则为nil
 func (r *ClickHouseRepository) SavePerformanceMetric(ctx context.Context, metric *models.PerformanceMetric) error {
 	// 定义SQL插入语句，包含性能指标的所有字段
 	query := `INSERT INTO performance_metrics (timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, value, extra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-	
+
 	// 将Extra字段转换为字符串，如果为空则使用空JSON对象
 	extraStr := string(metric.Extra)
 	if extraStr == "" {
 		extraStr = "{}"
 	}
-	
+
 	// 执行插入操作
-	_, err := r.DB.ExecContext(ctx, query, 
+	_, err := r.DB.ExecContext(ctx, query,
 		metric.Timestamp, metric.ProjectID, metric.SessionID, metric.TraceID, metric.UserID,
 		metric.URL, metric.Referrer, metric.Type, metric.Name, metric.Value, extraStr)
 	if err != nil {
@@ -228,6 +234,7 @@ func (r *ClickHouseRepository) SavePerformanceMetric(ctx context.Context, metric
 //   - projectID: 项目标识符
 //   - startTime: 开始时间
 //   - endTime: 结束时间
+//
 // 返回:
 //   - []*models.PerformanceMetric: 性能指标列表
 //   - error: 查询过程中的错误信息，成功则为nil
@@ -237,7 +244,7 @@ func (r *ClickHouseRepository) GetPerformanceMetrics(ctx context.Context, projec
 		FROM performance_metrics 
 		WHERE project_id = ? AND timestamp >= ? AND timestamp <= ? 
 		ORDER BY timestamp DESC`
-	
+
 	// 执行查询
 	rows, err := r.DB.QueryContext(ctx, query, projectID, startTime, endTime)
 	if err != nil {
@@ -267,6 +274,7 @@ func (r *ClickHouseRepository) GetPerformanceMetrics(ctx context.Context, projec
 //   - metricType: 性能指标类型名称
 //   - startTime: 开始时间
 //   - endTime: 结束时间
+//
 // 返回:
 //   - []*models.PerformanceMetric: 性能指标列表
 //   - error: 查询过程中的错误信息，成功则为nil
@@ -276,7 +284,7 @@ func (r *ClickHouseRepository) GetPerformanceMetricsByType(ctx context.Context, 
 		FROM performance_metrics 
 		WHERE project_id = ? AND name = ? AND timestamp >= ? AND timestamp <= ? 
 		ORDER BY timestamp DESC`
-	
+
 	// 执行查询
 	rows, err := r.DB.QueryContext(ctx, query, projectID, metricType, startTime, endTime)
 	if err != nil {
@@ -303,20 +311,21 @@ func (r *ClickHouseRepository) GetPerformanceMetricsByType(ctx context.Context, 
 // 参数:
 //   - ctx: 上下文对象，用于控制请求超时和取消
 //   - action: 用户行为对象，包含要保存的用户交互数据
+//
 // 返回:
 //   - error: 保存过程中的错误信息，成功则为nil
 func (r *ClickHouseRepository) SaveUserAction(ctx context.Context, action *models.UserAction) error {
 	// 定义SQL插入语句，包含用户行为的所有字段
 	query := `INSERT INTO user_actions (timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, method, status, value, extra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-	
+
 	// 将Extra字段转换为字符串，如果为空则使用空JSON对象
 	extraStr := string(action.Extra)
 	if extraStr == "" {
 		extraStr = "{}"
 	}
-	
+
 	// 执行插入操作
-	_, err := r.DB.ExecContext(ctx, query, 
+	_, err := r.DB.ExecContext(ctx, query,
 		action.Timestamp, action.ProjectID, action.SessionID, action.TraceID, action.UserID,
 		action.URL, action.Referrer, action.Type, action.Name, action.Message, action.Method,
 		action.Status, action.Value, extraStr)
@@ -332,6 +341,7 @@ func (r *ClickHouseRepository) SaveUserAction(ctx context.Context, action *model
 //   - projectID: 项目标识符
 //   - startTime: 开始时间
 //   - endTime: 结束时间
+//
 // 返回:
 //   - []*models.UserAction: 用户行为列表
 //   - error: 查询过程中的错误信息，成功则为nil
@@ -341,7 +351,7 @@ func (r *ClickHouseRepository) GetUserActions(ctx context.Context, projectID str
 		FROM user_actions 
 		WHERE project_id = ? AND timestamp >= ? AND timestamp <= ? 
 		ORDER BY timestamp DESC`
-	
+
 	// 执行查询
 	rows, err := r.DB.QueryContext(ctx, query, projectID, startTime, endTime)
 	if err != nil {
@@ -372,6 +382,7 @@ func (r *ClickHouseRepository) GetUserActions(ctx context.Context, projectID str
 //   - actionType: 用户行为类型名称
 //   - startTime: 开始时间
 //   - endTime: 结束时间
+//
 // 返回:
 //   - []*models.UserAction: 用户行为列表
 //   - error: 查询过程中的错误信息，成功则为nil
@@ -381,7 +392,7 @@ func (r *ClickHouseRepository) GetUserActionsByType(ctx context.Context, project
 		FROM user_actions 
 		WHERE project_id = ? AND name = ? AND timestamp >= ? AND timestamp <= ? 
 		ORDER BY timestamp DESC`
-	
+
 	// 执行查询
 	rows, err := r.DB.QueryContext(ctx, query, projectID, actionType, startTime, endTime)
 	if err != nil {
@@ -409,20 +420,21 @@ func (r *ClickHouseRepository) GetUserActionsByType(ctx context.Context, project
 // 参数:
 //   - ctx: 上下文对象，用于控制请求超时和取消
 //   - event: 自定义事件对象，包含要保存的自定义事件数据
+//
 // 返回:
 //   - error: 保存过程中的错误信息，成功则为nil
 func (r *ClickHouseRepository) SaveCustomEvent(ctx context.Context, event *models.CustomEvent) error {
 	// 定义SQL插入语句，包含自定义事件的所有字段
 	query := `INSERT INTO custom_events (timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, extra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-	
+
 	// 将Extra字段转换为字符串，如果为空则使用空JSON对象
 	extraStr := string(event.Extra)
 	if extraStr == "" {
 		extraStr = "{}"
 	}
-	
+
 	// 执行插入操作
-	_, err := r.DB.ExecContext(ctx, query, 
+	_, err := r.DB.ExecContext(ctx, query,
 		event.Timestamp, event.ProjectID, event.SessionID, event.TraceID, event.UserID,
 		event.URL, event.Referrer, event.Type, event.Name, event.Message, extraStr)
 	if err != nil {
@@ -437,6 +449,7 @@ func (r *ClickHouseRepository) SaveCustomEvent(ctx context.Context, event *model
 //   - projectID: 项目标识符
 //   - startTime: 开始时间
 //   - endTime: 结束时间
+//
 // 返回:
 //   - []*models.CustomEvent: 自定义事件列表
 //   - error: 查询过程中的错误信息，成功则为nil
@@ -446,7 +459,7 @@ func (r *ClickHouseRepository) GetCustomEvents(ctx context.Context, projectID st
 		FROM custom_events 
 		WHERE project_id = ? AND timestamp >= ? AND timestamp <= ? 
 		ORDER BY timestamp DESC`
-	
+
 	// 执行查询
 	rows, err := r.DB.QueryContext(ctx, query, projectID, startTime, endTime)
 	if err != nil {
@@ -476,6 +489,7 @@ func (r *ClickHouseRepository) GetCustomEvents(ctx context.Context, projectID st
 //   - eventName: 自定义事件名称
 //   - startTime: 开始时间
 //   - endTime: 结束时间
+//
 // 返回:
 //   - []*models.CustomEvent: 自定义事件列表
 //   - error: 查询过程中的错误信息，成功则为nil
@@ -485,7 +499,7 @@ func (r *ClickHouseRepository) GetCustomEventsByName(ctx context.Context, projec
 		FROM custom_events 
 		WHERE project_id = ? AND name = ? AND timestamp >= ? AND timestamp <= ? 
 		ORDER BY timestamp DESC`
-	
+
 	// 执行查询
 	rows, err := r.DB.QueryContext(ctx, query, projectID, eventName, startTime, endTime)
 	if err != nil {
@@ -512,14 +526,21 @@ func (r *ClickHouseRepository) GetCustomEventsByName(ctx context.Context, projec
 // 参数:
 //   - ctx: 上下文对象，用于控制请求超时和取消
 //   - pageStay: 页面停留对象，包含要保存的页面停留时间数据
+//
 // 返回:
 //   - error: 保存过程中的错误信息，成功则为nil
 func (r *ClickHouseRepository) SavePageStay(ctx context.Context, pageStay *models.PageStay) error {
 	// 定义SQL插入语句，包含页面停留数据的所有字段
 	query := `INSERT INTO page_stay (timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, value, extra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-	
+
+	// 将Extra字段转换为字符串，如果为空则使用空JSON对象
+	extraStr := string(pageStay.Extra)
+	if extraStr == "" {
+		extraStr = "{}"
+	}
+
 	// 执行插入操作
-	_, err := r.DB.ExecContext(ctx, query, 
+	_, err := r.DB.ExecContext(ctx, query,
 		pageStay.Timestamp, pageStay.ProjectID, pageStay.SessionID, pageStay.TraceID, pageStay.UserID,
 		pageStay.URL, pageStay.Referrer, pageStay.Type, pageStay.Name, pageStay.Value, pageStay.Extra)
 	if err != nil {
@@ -534,6 +555,7 @@ func (r *ClickHouseRepository) SavePageStay(ctx context.Context, pageStay *model
 //   - projectID: 项目标识符
 //   - startTime: 开始时间
 //   - endTime: 结束时间
+//
 // 返回:
 //   - []*models.PageStay: 页面停留时间列表
 //   - error: 查询过程中的错误信息，成功则为nil
@@ -543,7 +565,7 @@ func (r *ClickHouseRepository) GetPageStays(ctx context.Context, projectID strin
 		FROM page_stay 
 		WHERE project_id = ? AND timestamp >= ? AND timestamp <= ? 
 		ORDER BY timestamp DESC`
-	
+
 	// 执行查询
 	rows, err := r.DB.QueryContext(ctx, query, projectID, startTime, endTime)
 	if err != nil {
@@ -572,6 +594,7 @@ func (r *ClickHouseRepository) GetPageStays(ctx context.Context, projectID strin
 //   - projectID: 项目标识符
 //   - startTime: 开始时间
 //   - endTime: 结束时间
+//
 // 返回:
 //   - float64: 平均页面停留时间（秒）
 //   - error: 查询过程中的错误信息，成功则为nil
