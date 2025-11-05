@@ -1,3 +1,7 @@
 {"level":"\u001b[34mINFO\u001b[0m","time":"2025-11-05 15:06:20","caller":"gin@v1.11.0/context.go:192","msg":"Ping API called"}
 {"level":"\u001b[34mINFO\u001b[0m","time":"2025-11-05 15:06:20","caller":"gin@v1.11.0/context.go:192","msg":"HTTP Request","status":200,"method":"GET","path":"/","ip":"::1","latency":0.016137}
 {"level":"\u001b[34mINFO\u001b[0m","time":"2025-11-05 15:06:20","caller":"gin@v1.11.0/context.go:192","msg":"HTTP Request","status":304,"method":"GET","path":"/static/style.css","ip":"::1","latency":0.001001}
+{"level":"INFO","time":"2025-11-05 15:45:36","caller":"spectra-backend/main.go:41","msg":"Starting server","address":"0.0.0.0:8080"}
+{"level":"INFO","time":"2025-11-05 15:45:56","caller":"router/routes.go:12","msg":"Ping API called"}
+{"level":"INFO","time":"2025-11-05 15:45:56","caller":"middleware/logger.go:64","msg":"HTTP Request","status":200,"method":"GET","path":"/","ip":"::1","latency":0.0010016}
+{"level":"INFO","time":"2025-11-05 15:45:56","caller":"middleware/logger.go:64","msg":"HTTP Request","status":304,"method":"GET","path":"/static/style.css","ip":"::1","latency":0.0005361}

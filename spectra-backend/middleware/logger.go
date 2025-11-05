@@ -11,7 +11,7 @@ import (
 )
 
 func InitLogger() *zap.Logger {
-	// 加载配置
+
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		// 如果加载配置失败，使用默认值
@@ -52,7 +52,6 @@ func InitLogger() *zap.Logger {
 	return logger
 }
 
-// GinLogger 是 Gin 的日志中间件
 func GinLogger(logger *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
@@ -71,7 +70,6 @@ func GinLogger(logger *zap.Logger) gin.HandlerFunc {
 	}
 }
 
-// getLogWriter 创建日志写入器
 func getLogWriter(filePath string, maxSize, maxAge, maxBackups int) zapcore.WriteSyncer {
 	lumberJackLogger := &lumberjack.Logger{
 		Filename:   filePath,
