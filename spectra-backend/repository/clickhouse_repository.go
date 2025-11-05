@@ -1,17 +1,19 @@
 package repository
 
 import (
-	"context"
-	"database/sql"
-	"fmt"
-	"spectra-backend/config"
-	"spectra-backend/models"
-	"strings"
-	"time"
+    "context"
+    "database/sql"
+    "encoding/json"
+    "fmt"
+    "strconv"
+    "spectra-backend/config"
+    "spectra-backend/models"
+    "strings"
+    "time"
 
-	// 匿名导入 ClickHouse 驱动以确保驱动被正确注册
-	_ "github.com/ClickHouse/clickhouse-go/v2"
-	"go.uber.org/zap"
+    // 匿名导入 ClickHouse 驱动以确保驱动被正确注册
+    _ "github.com/ClickHouse/clickhouse-go/v2"
+    "go.uber.org/zap"
 )
 
 // Repository 接口定义了所有数据访问操作
@@ -112,23 +114,44 @@ func maskPassword(dsn string) string {
 // 返回:
 //   - error: 保存过程中的错误信息，成功则为nil
 func (r *ClickHouseRepository) SaveErrorLog(ctx context.Context, log *models.ErrorLog) error {
-	// 定义SQL插入语句，包含错误日志的所有字段
-	query := `INSERT INTO error_logs (timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, extra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    // 定义SQL插入语句，包含错误日志的所有字段
+    query := `INSERT INTO error_logs (timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, extra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
-	// 将Extra字段转换为字符串，如果为空则使用空JSON对象
-	extraStr := string(log.Extra)
-	if extraStr == "" {
-		extraStr = "{}"
-	}
+    // 规范化 Extra 字段，兼容字符串和对象两种输入
+    extraStr := normalizeJSONRawMessage(log.Extra)
 
-	// 执行插入操作，使用ExecContext支持上下文取消和超时
-	_, err := r.DB.ExecContext(ctx, query,
-		log.Timestamp, log.ProjectID, log.SessionID, log.TraceID, log.UserID,
-		log.URL, log.Referrer, log.Type, log.Name, log.Message, extraStr)
-	if err != nil {
-		return fmt.Errorf("failed to save error log: %w", err)
-	}
-	return nil
+    // 执行插入操作，使用ExecContext支持上下文取消和超时
+    _, err := r.DB.ExecContext(ctx, query,
+        log.Timestamp, log.ProjectID, log.SessionID, log.TraceID, log.UserID,
+        log.URL, log.Referrer, log.Type, log.Name, log.Message, extraStr)
+    if err != nil {
+        return fmt.Errorf("failed to save error log: %w", err)
+    }
+    return nil
+}
+
+// normalizeJSONRawMessage 将 RawMessage 规范化为 ClickHouse JSON 列可接受的对象文本
+// - 如果是空值，返回 "{}"
+// - 如果是带引号的 JSON 字符串，去除外层引号
+// - 如果不是合法 JSON，降级为 "{}"
+func normalizeJSONRawMessage(raw json.RawMessage) string {
+    s := strings.TrimSpace(string(raw))
+    if s == "" || s == "null" {
+        return "{}"
+    }
+
+    // 如果是字符串（例如 "{\"a\":1}"），尝试反引号解码
+    if len(s) >= 2 && s[0] == '"' && s[len(s)-1] == '"' {
+        if unquoted, err := strconv.Unquote(s); err == nil {
+            s = unquoted
+        }
+    }
+
+    // 校验是否为合法 JSON（对象或数组）
+    if !json.Valid([]byte(s)) {
+        return "{}"
+    }
+    return s
 }
 
 // GetErrorLogs 获取指定项目在时间范围内的错误日志列表
