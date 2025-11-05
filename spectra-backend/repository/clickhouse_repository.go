@@ -165,11 +165,11 @@ func normalizeJSONRawMessage(raw json.RawMessage) string {
 //   - []*models.ErrorLog: 错误日志列表
 //   - error: 查询过程中的错误信息，成功则为nil
 func (r *ClickHouseRepository) GetErrorLogs(ctx context.Context, projectID string, startTime, endTime time.Time) ([]*models.ErrorLog, error) {
-	// 定义SQL查询语句，按时间倒序排列
-	query := `SELECT timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, extra 
-		FROM error_logs 
-		WHERE project_id = ? AND timestamp >= ? AND timestamp <= ? 
-		ORDER BY timestamp DESC`
+    // 定义SQL查询语句，按时间倒序排列
+    query := `SELECT timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, CAST(extra AS String) 
+        FROM error_logs 
+        WHERE project_id = ? AND timestamp >= ? AND timestamp <= ? 
+        ORDER BY timestamp DESC`
 
 	// 执行查询，使用QueryContext支持上下文取消和超时
 	rows, err := r.DB.QueryContext(ctx, query, projectID, startTime, endTime)
@@ -180,17 +180,23 @@ func (r *ClickHouseRepository) GetErrorLogs(ctx context.Context, projectID strin
 
 	var logs []*models.ErrorLog
 	// 遍历查询结果，将每一行数据扫描到ErrorLog结构体中
-	for rows.Next() {
-		var log models.ErrorLog
-		err := rows.Scan(
-			&log.Timestamp, &log.ProjectID, &log.SessionID, &log.TraceID, &log.UserID,
-			&log.URL, &log.Referrer, &log.Type, &log.Name, &log.Message, &log.Extra)
-		if err != nil {
-			return nil, fmt.Errorf("failed to scan error log: %w", err)
-		}
-		logs = append(logs, &log)
-	}
-	return logs, nil
+    for rows.Next() {
+        var log models.ErrorLog
+        var extraStr sql.NullString
+        err := rows.Scan(
+            &log.Timestamp, &log.ProjectID, &log.SessionID, &log.TraceID, &log.UserID,
+            &log.URL, &log.Referrer, &log.Type, &log.Name, &log.Message, &extraStr)
+        if err != nil {
+            return nil, fmt.Errorf("failed to scan error log: %w", err)
+        }
+        if extraStr.Valid {
+            log.Extra = json.RawMessage(extraStr.String)
+        } else {
+            log.Extra = json.RawMessage("{}")
+        }
+        logs = append(logs, &log)
+    }
+    return logs, nil
 }
 
 // GetErrorLogByTraceID 根据traceID获取特定的错误日志
@@ -203,24 +209,30 @@ func (r *ClickHouseRepository) GetErrorLogs(ctx context.Context, projectID strin
 //   - error: 查询过程中的错误信息，成功或未找到则为nil
 func (r *ClickHouseRepository) GetErrorLogByTraceID(ctx context.Context, traceID string) (*models.ErrorLog, error) {
 	// 定义SQL查询语句，使用LIMIT 1确保只返回一个结果
-	query := `SELECT timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, extra 
-		FROM error_logs 
-		WHERE trace_id = ? 
-		LIMIT 1`
+    query := `SELECT timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, CAST(extra AS String) 
+        FROM error_logs 
+        WHERE trace_id = ? 
+        LIMIT 1`
 
 	var log models.ErrorLog
 	// 使用QueryRowContext执行查询并直接扫描结果
-	err := r.DB.QueryRowContext(ctx, query, traceID).Scan(
-		&log.Timestamp, &log.ProjectID, &log.SessionID, &log.TraceID, &log.UserID,
-		&log.URL, &log.Referrer, &log.Type, &log.Name, &log.Message, &log.Extra)
+    var extraStr sql.NullString
+    err := r.DB.QueryRowContext(ctx, query, traceID).Scan(
+        &log.Timestamp, &log.ProjectID, &log.SessionID, &log.TraceID, &log.UserID,
+        &log.URL, &log.Referrer, &log.Type, &log.Name, &log.Message, &extraStr)
 
-	if err != nil {
-		if err == sql.ErrNoRows {
-			// 如果没有找到记录，返回nil, nil
-			return nil, nil
-		}
-		return nil, fmt.Errorf("failed to query error log by traceID: %w", err)
-	}
+    if err != nil {
+        if err == sql.ErrNoRows {
+            // 如果没有找到记录，返回nil, nil
+            return nil, nil
+        }
+        return nil, fmt.Errorf("failed to query error log by traceID: %w", err)
+    }
+    if extraStr.Valid {
+        log.Extra = json.RawMessage(extraStr.String)
+    } else {
+        log.Extra = json.RawMessage("{}")
+    }
 	return &log, nil
 }
 

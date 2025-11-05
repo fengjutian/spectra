@@ -60,26 +60,43 @@ func (h *LogHandler) RecordErrorLog(c *gin.Context) {
 
 // GetErrorLogs 获取错误日志列表
 func (h *LogHandler) GetErrorLogs(c *gin.Context) {
-	projectID := c.Query("project_id")
-	if projectID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "project_id is required"})
-		return
-	}
+    projectID := c.Query("project_id")
+    if projectID == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "project_id is required"})
+        return
+    }
 
-	startTime, endTime, err := parseTimeRange(c)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+    // 调试：打印查询的项目ID
+    h.logger.Debug("GetErrorLogs called", zap.String("project_id", projectID))
 
-	logs, err := h.logService.GetErrorLogs(c.Request.Context(), projectID, startTime, endTime)
-	if err != nil {
-		h.logger.Error("Failed to get error logs", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get error logs"})
-		return
-	}
+    startTime, endTime, err := parseTimeRange(c)
+    if err != nil {
+        h.logger.Error("Invalid time range for GetErrorLogs",
+            zap.String("project_id", projectID),
+            zap.Error(err))
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
 
-	c.JSON(http.StatusOK, logs)
+    logs, err := h.logService.GetErrorLogs(c.Request.Context(), projectID, startTime, endTime)
+    if err != nil {
+        h.logger.Error("Failed to get error logs",
+            zap.String("project_id", projectID),
+            zap.Time("start_time", startTime),
+            zap.Time("end_time", endTime),
+            zap.Error(err))
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get error logs"})
+        return
+    }
+
+    // 调试：输出查询结果条数
+    h.logger.Debug("GetErrorLogs succeeded",
+        zap.String("project_id", projectID),
+        zap.Time("start_time", startTime),
+        zap.Time("end_time", endTime),
+        zap.Int("count", len(logs)))
+
+    c.JSON(http.StatusOK, logs)
 }
 
 // RecordPerformanceMetric 记录性能指标
