@@ -15,3 +15,12 @@ log:
   max_size: 500
   max_age: 30
   compress: true
+
+db:
+  driver: clickhouse
+  host: ci5eaxwoe9.asia-southeast1.gcp.clickhouse.cloud
+  port: 8443
+  database: default
+  username: default
+  password: QhH_vObgVEGw6
+  debug: true

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"spectra-backend/config"
 	"spectra-backend/models"
+	"strings"
 	"time"
 
 	_ "github.com/ClickHouse/clickhouse-go/v2"
@@ -20,24 +21,58 @@ type ClickHouseRepository struct {
 
 // NewClickHouseRepository 创建ClickHouse仓库实例
 func NewClickHouseRepository(cfg *config.Config, logger *zap.Logger) (*ClickHouseRepository, error) {
-	// 使用正确的DSN格式连接远程ClickHouse云服务
-	dsn := fmt.Sprintf("tcp://%s:%d?database=%s&username=%s&password=%s&secure=true",
+	// 记录数据库配置信息（隐藏敏感信息）
+	logger.Info("Initializing ClickHouse connection",
+		zap.String("host", cfg.DB.Host),
+		zap.Int("port", cfg.DB.Port),
+		zap.String("database", cfg.DB.Database),
+		zap.String("username", cfg.DB.Username),
+		zap.Bool("debug", cfg.DB.Debug))
+
+	// 使用https协议连接远程ClickHouse云服务
+	dsn := fmt.Sprintf("https://%s:%d?database=%s&username=%s&password=%s&secure=true",
 		cfg.DB.Host, cfg.DB.Port, cfg.DB.Database, cfg.DB.Username, cfg.DB.Password)
+
+	logger.Debug("ClickHouse DSN constructed", zap.String("dsn", maskPassword(dsn)))
 
 	db, err := sql.Open("clickhouse", dsn)
 	if err != nil {
+		logger.Error("Failed to open database connection", zap.Error(err))
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
 
+	// 设置连接池参数
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(5)
+	db.SetConnMaxLifetime(time.Minute * 5)
+
 	// 测试连接
+	logger.Info("Testing database connection...")
 	if err := db.Ping(); err != nil {
+		logger.Error("Failed to ping database", zap.Error(err))
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
+	logger.Info("Successfully connected to ClickHouse database")
 	return &ClickHouseRepository{
 		DB:     db,
 		Logger: logger,
 	}, nil
+}
+
+// maskPassword 隐藏DSN中的密码信息
+func maskPassword(dsn string) string {
+	// 简单的密码掩码函数，实际使用时可以根据需要调整
+	passwordStart := strings.Index(dsn, "password=")
+	if passwordStart == -1 {
+		return dsn
+	}
+	passwordStart += len("password=")
+	passwordEnd := strings.Index(dsn[passwordStart:], "&")
+	if passwordEnd == -1 {
+		return dsn[:passwordStart] + "***"
+	}
+	return dsn[:passwordStart] + "***" + dsn[passwordStart+passwordEnd:]
 }
 
 // 实现 ErrorLog 相关方法

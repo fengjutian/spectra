@@ -8,3 +8,19 @@
 {"level":"INFO","time":"2025-11-05 16:55:37","caller":"spectra-backend/main.go:38","msg":"Starting server","address":"0.0.0.0:8080"}
 {"level":"FATAL","time":"2025-11-05 16:55:37","caller":"spectra-backend/main.go:40","msg":"Failed to start server","error":"listen tcp 0.0.0.0:8080: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted."}
 {"level":"INFO","time":"2025-11-05 16:57:16","caller":"spectra-backend/main.go:38","msg":"Starting server","address":"0.0.0.0:8080"}
+{"level":"INFO","time":"2025-11-05 17:36:00","caller":"middleware/logger.go:63","msg":"HTTP Request","status":404,"method":"GET","path":"/api/error-logs","ip":"::1","latency":0}
+{"level":"FATAL","time":"2025-11-05 17:36:08","caller":"router/routes.go:19","msg":"Failed to initialize repository","error":"failed to ping database: dial tcp: lookup https: no such host"}
+{"level":"FATAL","time":"2025-11-05 17:37:54","caller":"router/routes.go:19","msg":"Failed to initialize repository","error":"failed to ping database: [handshake] unexpected packet [72] from server"}
+{"level":"INFO","time":"2025-11-05 17:39:25","caller":"repository/clickhouse_repository.go:25","msg":"Initializing ClickHouse connection","host":"ci5eaxwoe9.asia-southeast1.gcp.clickhouse.cloud","port":8443,"database":"spectra_log_data","username":"default","debug":true}
+{"level":"INFO","time":"2025-11-05 17:39:25","caller":"repository/clickhouse_repository.go:50","msg":"Testing database connection..."}
+{"level":"ERROR","time":"2025-11-05 17:39:26","caller":"repository/clickhouse_repository.go:52","msg":"Failed to ping database","error":"[handshake] unexpected packet [72] from server"}
+{"level":"FATAL","time":"2025-11-05 17:39:26","caller":"router/routes.go:19","msg":"Failed to initialize repository","error":"failed to ping database: [handshake] unexpected packet [72] from server"}
+{"level":"INFO","time":"2025-11-05 17:40:10","caller":"repository/clickhouse_repository.go:25","msg":"Initializing ClickHouse connection","host":"ci5eaxwoe9.asia-southeast1.gcp.clickhouse.cloud","port":8443,"database":"spectra_log_data","username":"default","debug":true}
+{"level":"INFO","time":"2025-11-05 17:40:10","caller":"repository/clickhouse_repository.go:50","msg":"Testing database connection..."}
+{"level":"ERROR","time":"2025-11-05 17:40:12","caller":"repository/clickhouse_repository.go:52","msg":"Failed to ping database","error":"clickhouse [execute]:: 404 code: Code: 81. DB::Exception: Database spectra_log_data does not exist. (UNKNOWN_DATABASE) (version 25.6.2.6261 (official build))\n"}
+{"level":"FATAL","time":"2025-11-05 17:40:12","caller":"router/routes.go:19","msg":"Failed to initialize repository","error":"failed to ping database: clickhouse [execute]:: 404 code: Code: 81. DB::Exception: Database spectra_log_data does not exist. (UNKNOWN_DATABASE) (version 25.6.2.6261 (official build))\n"}
+{"level":"INFO","time":"2025-11-05 17:40:53","caller":"repository/clickhouse_repository.go:25","msg":"Initializing ClickHouse connection","host":"ci5eaxwoe9.asia-southeast1.gcp.clickhouse.cloud","port":8443,"database":"default","username":"default","debug":true}
+{"level":"INFO","time":"2025-11-05 17:40:53","caller":"repository/clickhouse_repository.go:50","msg":"Testing database connection..."}
+{"level":"INFO","time":"2025-11-05 17:40:55","caller":"repository/clickhouse_repository.go:56","msg":"Successfully connected to ClickHouse database"}
+{"level":"INFO","time":"2025-11-05 17:40:55","caller":"spectra-backend/main.go:38","msg":"Starting server","address":"0.0.0.0:8080"}
+{"level":"INFO","time":"2025-11-05 17:41:01","caller":"middleware/logger.go:63","msg":"HTTP Request","status":400,"method":"GET","path":"/api/error-logs","ip":"::1","latency":0}
