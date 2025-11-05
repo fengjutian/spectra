@@ -74,12 +74,17 @@ function App() {
 
       if (response.ok) {
         const result = await response.json()
-        setResponse(`查询到 ${result.length} 条错误日志: ${JSON.stringify(result, null, 2)}`)
+        if (result.length === 0) {
+          setResponse(`ℹ️ 查询完成，但没有找到错误日志记录。\n\n查询参数:\n项目ID: demo-project\n时间范围: 过去24小时`)
+        } else {
+          setResponse(`✅ 查询成功！\n\n查询到 ${result.length} 条错误日志:\n${JSON.stringify(result, null, 2)}`)
+        }
       } else {
-        setResponse(`请求失败: ${response.status} ${response.statusText}`)
+        const errorText = await response.text()
+        setResponse(`❌ 查询失败: ${response.status} ${response.statusText}\n\n错误详情:\n${errorText}`)
       }
     } catch (error) {
-      setResponse(`请求出错: ${error instanceof Error ? error.message : '未知错误'}`)
+      setResponse(`❌ 网络错误: ${error instanceof Error ? error.message : '未知错误'}\n\n请确保后端服务正在运行 (http://localhost:8080)`)
     } finally {
       setLoading(false)
     }
