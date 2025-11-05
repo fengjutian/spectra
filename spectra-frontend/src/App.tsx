@@ -41,12 +41,13 @@ function App() {
 
       if (response.ok) {
         const result = await response.json()
-        setResponse(`成功记录错误日志: ${JSON.stringify(result)}`)
+        setResponse(`✅ 成功记录错误日志！\n\n响应数据:\n${JSON.stringify(result, null, 2)}`)
       } else {
-        setResponse(`请求失败: ${response.status} ${response.statusText}`)
+        const errorText = await response.text()
+        setResponse(`❌ 请求失败: ${response.status} ${response.statusText}\n\n错误详情:\n${errorText}`)
       }
     } catch (error) {
-      setResponse(`请求出错: ${error instanceof Error ? error.message : '未知错误'}`)
+      setResponse(`❌ 网络错误: ${error instanceof Error ? error.message : '未知错误'}\n\n请确保后端服务正在运行 (http://localhost:8080)`)
     } finally {
       setLoading(false)
     }
