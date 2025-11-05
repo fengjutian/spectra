@@ -6,7 +6,9 @@ import (
 	"spectra-backend/config"
 	"spectra-backend/middleware"
 	"spectra-backend/router"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -24,6 +26,16 @@ func main() {
 	defer logger.Sync()
 
 	r := gin.Default()
+
+	// 配置 CORS
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:5174", "http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	r.Use(middleware.GinLogger(logger))
 

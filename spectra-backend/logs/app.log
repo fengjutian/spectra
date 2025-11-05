@@ -45,3 +45,20 @@
 {"level":"INFO","time":"2025-11-05 20:00:30","caller":"middleware/logger.go:63","msg":"HTTP Request","status":404,"method":"OPTIONS","path":"/api/error-logs","ip":"::1","latency":0}
 {"level":"INFO","time":"2025-11-05 20:00:42","caller":"middleware/logger.go:63","msg":"HTTP Request","status":404,"method":"OPTIONS","path":"/api/error-logs","ip":"::1","latency":0}
 {"level":"INFO","time":"2025-11-05 20:01:00","caller":"middleware/logger.go:63","msg":"HTTP Request","status":404,"method":"OPTIONS","path":"/api/error-logs","ip":"::1","latency":0}
+{"level":"INFO","time":"2025-11-05 20:03:01","caller":"repository/clickhouse_repository.go:36","msg":"Initializing ClickHouse connection","host":"ci5eaxwoe9.asia-southeast1.gcp.clickhouse.cloud","port":8443,"database":"default","username":"default","debug":true}
+{"level":"INFO","time":"2025-11-05 20:03:01","caller":"repository/clickhouse_repository.go:64","msg":"Testing database connection..."}
+{"level":"INFO","time":"2025-11-05 20:03:02","caller":"repository/clickhouse_repository.go:70","msg":"Successfully connected to ClickHouse database"}
+{"level":"INFO","time":"2025-11-05 20:03:02","caller":"spectra-backend/main.go:50","msg":"Starting server","address":"0.0.0.0:8080"}
+{"level":"INFO","time":"2025-11-05 20:03:29","caller":"repository/clickhouse_repository.go:36","msg":"Initializing ClickHouse connection","host":"ci5eaxwoe9.asia-southeast1.gcp.clickhouse.cloud","port":8443,"database":"default","username":"default","debug":true}
+{"level":"INFO","time":"2025-11-05 20:03:29","caller":"repository/clickhouse_repository.go:64","msg":"Testing database connection..."}
+{"level":"INFO","time":"2025-11-05 20:03:30","caller":"repository/clickhouse_repository.go:70","msg":"Successfully connected to ClickHouse database"}
+{"level":"INFO","time":"2025-11-05 20:03:30","caller":"spectra-backend/main.go:50","msg":"Starting server","address":"0.0.0.0:8080"}
+{"level":"FATAL","time":"2025-11-05 20:03:30","caller":"spectra-backend/main.go:52","msg":"Failed to start server","error":"listen tcp 0.0.0.0:8080: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted."}
+{"level":"INFO","time":"2025-11-05 20:03:55","caller":"repository/clickhouse_repository.go:36","msg":"Initializing ClickHouse connection","host":"ci5eaxwoe9.asia-southeast1.gcp.clickhouse.cloud","port":8443,"database":"default","username":"default","debug":true}
+{"level":"INFO","time":"2025-11-05 20:03:55","caller":"repository/clickhouse_repository.go:64","msg":"Testing database connection..."}
+{"level":"INFO","time":"2025-11-05 20:03:56","caller":"repository/clickhouse_repository.go:70","msg":"Successfully connected to ClickHouse database"}
+{"level":"INFO","time":"2025-11-05 20:03:56","caller":"spectra-backend/main.go:50","msg":"Starting server","address":"0.0.0.0:8080"}
+{"level":"INFO","time":"2025-11-05 20:04:26","caller":"router/routes.go:60","msg":"Ping API called"}
+{"level":"INFO","time":"2025-11-05 20:04:26","caller":"middleware/logger.go:63","msg":"HTTP Request","status":200,"method":"GET","path":"/ping","ip":"::1","latency":0}
+{"level":"ERROR","time":"2025-11-05 20:04:37","caller":"handlers/log_handler.go:38","msg":"Failed to record error log","error":"failed to save error log: clickhouse [execute]:: 404 code: Code: 60. DB::Exception: Table default.error_logs does not exist. Maybe you meant system.error_log?. (UNKNOWN_TABLE) (version 25.6.2.6261 (official build))\n"}
+{"level":"INFO","time":"2025-11-05 20:04:37","caller":"middleware/logger.go:63","msg":"HTTP Request","status":500,"method":"POST","path":"/api/error-logs","ip":"::1","latency":0.6708866}
