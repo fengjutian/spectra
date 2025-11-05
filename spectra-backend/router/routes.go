@@ -18,4 +18,5 @@ func HomeRoutes(router *gin.Engine, logger *zap.Logger) {
 			"message": "pong",
 		})
 	})
+
 }

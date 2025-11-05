@@ -23,17 +23,14 @@ func main() {
 	logger := middleware.InitLogger()
 	defer logger.Sync()
 
-	// 初始化路由
 	r := gin.Default()
 
-	// 使用日志中间件
 	r.Use(middleware.GinLogger(logger))
 
 	// 静态文件和模板
 	r.Static("/static", "./static")
 	r.LoadHTMLGlob("templates/*")
 
-	// 初始化路由
 	router.HomeRoutes(r, logger)
 
 	// 启动服务器
