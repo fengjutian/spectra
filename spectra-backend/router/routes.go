@@ -1,12 +1,13 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 	"spectra-backend/config"
 	"spectra-backend/handlers"
 	"spectra-backend/repository"
 	"spectra-backend/services"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func SetupRoutes(router *gin.Engine, cfg *config.Config, logger *zap.Logger) {
