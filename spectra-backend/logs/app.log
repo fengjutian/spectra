@@ -321,3 +321,9 @@
 {"level":"INFO","time":"2025-11-05 22:20:42","caller":"repository/clickhouse_repository.go:67","msg":"Testing database connection..."}
 {"level":"INFO","time":"2025-11-05 22:20:43","caller":"repository/clickhouse_repository.go:73","msg":"Successfully connected to ClickHouse database"}
 {"level":"INFO","time":"2025-11-05 22:20:43","caller":"spectra-backend/main.go:50","msg":"Starting server","address":"0.0.0.0:8080"}
+{"level":"INFO","time":"2025-11-05 22:21:08","caller":"middleware/logger.go:74","msg":"HTTP Request","status":200,"method":"GET","path":"/api/custom-events","ip":"::1","latency":0.3299971}
+{"level":"INFO","time":"2025-11-05 22:21:13","caller":"middleware/logger.go:74","msg":"HTTP Request","status":200,"method":"GET","path":"/api/page-stays/average","ip":"::1","latency":0.0760606}
+{"level":"INFO","time":"2025-11-05 22:21:19","caller":"middleware/logger.go:74","msg":"HTTP Request","status":200,"method":"GET","path":"/api/page-stays/average","ip":"::1","latency":0.0809203}
+{"level":"INFO","time":"2025-11-05 22:21:22","caller":"middleware/logger.go:74","msg":"HTTP Request","status":200,"method":"GET","path":"/api/page-stays/average","ip":"::1","latency":0.1070529}
+{"level":"INFO","time":"2025-11-05 22:21:23","caller":"middleware/logger.go:74","msg":"HTTP Request","status":201,"method":"POST","path":"/api/page-stays","ip":"::1","latency":0.2837944}
+{"level":"INFO","time":"2025-11-05 22:21:24","caller":"middleware/logger.go:74","msg":"HTTP Request","status":201,"method":"POST","path":"/api/page-stays","ip":"::1","latency":0.4257524}
