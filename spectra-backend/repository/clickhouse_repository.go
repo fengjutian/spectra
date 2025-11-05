@@ -8,7 +8,7 @@ import (
 	"spectra-backend/models"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
+	_ "github.com/ClickHouse/clickhouse-go/v2"
 	"go.uber.org/zap"
 )
 
@@ -20,19 +20,11 @@ type ClickHouseRepository struct {
 
 // NewClickHouseRepository 创建ClickHouse仓库实例
 func NewClickHouseRepository(cfg *config.Config, logger *zap.Logger) (*ClickHouseRepository, error) {
-	// 使用https协议连接远程ClickHouse云服务
-	connStr := fmt.Sprintf("https://%s:%d?database=%s&username=%s&password=%s&secure=true",
+	// 使用正确的DSN格式连接远程ClickHouse云服务
+	dsn := fmt.Sprintf("tcp://%s:%d?database=%s&username=%s&password=%s&secure=true",
 		cfg.DB.Host, cfg.DB.Port, cfg.DB.Database, cfg.DB.Username, cfg.DB.Password)
 
-	options, err := clickhouse.ParseDSN(connStr)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse DSN: %w", err)
-	}
-
-	options.Debug = cfg.DB.Debug
-	options.Secure = true // 确保SSL连接已启用
-
-	db, err := sql.Open("clickhouse", options.DSN())
+	db, err := sql.Open("clickhouse", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
