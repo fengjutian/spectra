@@ -36,3 +36,12 @@
 {"level":"INFO","time":"2025-11-05 19:48:02","caller":"repository/clickhouse_repository.go:64","msg":"Testing database connection..."}
 {"level":"INFO","time":"2025-11-05 19:48:23","caller":"repository/clickhouse_repository.go:70","msg":"Successfully connected to ClickHouse database"}
 {"level":"INFO","time":"2025-11-05 19:48:23","caller":"spectra-backend/main.go:38","msg":"Starting server","address":"0.0.0.0:8080"}
+{"level":"INFO","time":"2025-11-05 19:59:50","caller":"repository/clickhouse_repository.go:36","msg":"Initializing ClickHouse connection","host":"ci5eaxwoe9.asia-southeast1.gcp.clickhouse.cloud","port":8443,"database":"default","username":"default","debug":true}
+{"level":"INFO","time":"2025-11-05 19:59:51","caller":"repository/clickhouse_repository.go:64","msg":"Testing database connection..."}
+{"level":"INFO","time":"2025-11-05 19:59:52","caller":"repository/clickhouse_repository.go:70","msg":"Successfully connected to ClickHouse database"}
+{"level":"INFO","time":"2025-11-05 19:59:52","caller":"spectra-backend/main.go:38","msg":"Starting server","address":"0.0.0.0:8080"}
+{"level":"FATAL","time":"2025-11-05 19:59:52","caller":"spectra-backend/main.go:40","msg":"Failed to start server","error":"listen tcp 0.0.0.0:8080: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted."}
+{"level":"INFO","time":"2025-11-05 20:00:28","caller":"middleware/logger.go:63","msg":"HTTP Request","status":404,"method":"OPTIONS","path":"/api/error-logs","ip":"::1","latency":0}
+{"level":"INFO","time":"2025-11-05 20:00:30","caller":"middleware/logger.go:63","msg":"HTTP Request","status":404,"method":"OPTIONS","path":"/api/error-logs","ip":"::1","latency":0}
+{"level":"INFO","time":"2025-11-05 20:00:42","caller":"middleware/logger.go:63","msg":"HTTP Request","status":404,"method":"OPTIONS","path":"/api/error-logs","ip":"::1","latency":0}
+{"level":"INFO","time":"2025-11-05 20:01:00","caller":"middleware/logger.go:63","msg":"HTTP Request","status":404,"method":"OPTIONS","path":"/api/error-logs","ip":"::1","latency":0}

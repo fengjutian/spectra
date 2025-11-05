@@ -5,6 +5,70 @@
   text-align: center;
 }
 
+.app-container {
+  text-align: center;
+  padding: 20px;
+}
+
+.demo-section {
+  margin: 30px 0;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.button-group {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.button-group button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.button-group button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.button-group button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.response-section {
+  margin-top: 20px;
+  text-align: left;
+}
+
+.response-section h3 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.response-content {
+  background-color: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
