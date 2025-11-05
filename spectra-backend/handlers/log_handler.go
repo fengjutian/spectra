@@ -60,43 +60,43 @@ func (h *LogHandler) RecordErrorLog(c *gin.Context) {
 
 // GetErrorLogs 获取错误日志列表
 func (h *LogHandler) GetErrorLogs(c *gin.Context) {
-    projectID := c.Query("project_id")
-    if projectID == "" {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "project_id is required"})
-        return
-    }
+	projectID := c.Query("project_id")
+	if projectID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "project_id is required"})
+		return
+	}
 
-    // 调试：打印查询的项目ID
-    h.logger.Debug("GetErrorLogs called", zap.String("project_id", projectID))
+	// 调试：打印查询的项目ID
+	h.logger.Debug("GetErrorLogs called", zap.String("project_id", projectID))
 
-    startTime, endTime, err := parseTimeRange(c)
-    if err != nil {
-        h.logger.Error("Invalid time range for GetErrorLogs",
-            zap.String("project_id", projectID),
-            zap.Error(err))
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	startTime, endTime, err := parseTimeRange(c)
+	if err != nil {
+		h.logger.Error("Invalid time range for GetErrorLogs",
+			zap.String("project_id", projectID),
+			zap.Error(err))
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-    logs, err := h.logService.GetErrorLogs(c.Request.Context(), projectID, startTime, endTime)
-    if err != nil {
-        h.logger.Error("Failed to get error logs",
-            zap.String("project_id", projectID),
-            zap.Time("start_time", startTime),
-            zap.Time("end_time", endTime),
-            zap.Error(err))
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get error logs"})
-        return
-    }
+	logs, err := h.logService.GetErrorLogs(c.Request.Context(), projectID, startTime, endTime)
+	if err != nil {
+		h.logger.Error("Failed to get error logs",
+			zap.String("project_id", projectID),
+			zap.Time("start_time", startTime),
+			zap.Time("end_time", endTime),
+			zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get error logs"})
+		return
+	}
 
-    // 调试：输出查询结果条数
-    h.logger.Debug("GetErrorLogs succeeded",
-        zap.String("project_id", projectID),
-        zap.Time("start_time", startTime),
-        zap.Time("end_time", endTime),
-        zap.Int("count", len(logs)))
+	// 调试：输出查询结果条数
+	h.logger.Debug("GetErrorLogs succeeded",
+		zap.String("project_id", projectID),
+		zap.Time("start_time", startTime),
+		zap.Time("end_time", endTime),
+		zap.Int("count", len(logs)))
 
-    c.JSON(http.StatusOK, logs)
+	c.JSON(http.StatusOK, logs)
 }
 
 // RecordPerformanceMetric 记录性能指标
@@ -119,26 +119,63 @@ func (h *LogHandler) RecordPerformanceMetric(c *gin.Context) {
 
 // GetPerformanceMetrics 获取性能指标列表
 func (h *LogHandler) GetPerformanceMetrics(c *gin.Context) {
-	projectID := c.Query("project_id")
-	if projectID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "project_id is required"})
-		return
-	}
+    projectID := c.Query("project_id")
+    if projectID == "" {
+        h.logger.Error("Missing project_id for performance metrics request")
+        c.JSON(http.StatusBadRequest, gin.H{"error": "project_id is required"})
+        return
+    }
 
-	startTime, endTime, err := parseTimeRange(c)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+    // Debug: raw inputs
+    h.logger.Debug(
+        "GetPerformanceMetrics request",
+        zap.String("project_id", projectID),
+        zap.String("start_time_raw", c.Query("start_time")),
+        zap.String("end_time_raw", c.Query("end_time")),
+    )
 
-	metrics, err := h.logService.GetPerformanceMetrics(c.Request.Context(), projectID, startTime, endTime)
-	if err != nil {
-		h.logger.Error("Failed to get performance metrics", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get performance metrics"})
-		return
-	}
+    startTime, endTime, err := parseTimeRange(c)
+    if err != nil {
+        h.logger.Error(
+            "Failed to parse time range for performance metrics",
+            zap.String("project_id", projectID),
+            zap.String("start_time_raw", c.Query("start_time")),
+            zap.String("end_time_raw", c.Query("end_time")),
+            zap.Error(err),
+        )
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
 
-	c.JSON(http.StatusOK, metrics)
+    h.logger.Debug(
+        "Parsed time range for performance metrics",
+        zap.String("project_id", projectID),
+        zap.Time("start_time", startTime),
+        zap.Time("end_time", endTime),
+    )
+
+    metrics, err := h.logService.GetPerformanceMetrics(c.Request.Context(), projectID, startTime, endTime)
+    if err != nil {
+        h.logger.Error(
+            "Failed to get performance metrics",
+            zap.String("project_id", projectID),
+            zap.Time("start_time", startTime),
+            zap.Time("end_time", endTime),
+            zap.Error(err),
+        )
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get performance metrics"})
+        return
+    }
+
+    h.logger.Debug(
+        "Fetched performance metrics",
+        zap.String("project_id", projectID),
+        zap.Int("count", len(metrics)),
+        zap.Time("start_time", startTime),
+        zap.Time("end_time", endTime),
+    )
+
+    c.JSON(http.StatusOK, metrics)
 }
 
 // RecordUserAction 记录用户行为

@@ -268,3 +268,22 @@
 {"level":"INFO","time":"2025-11-05 22:03:16","caller":"middleware/logger.go:74","msg":"HTTP Request","status":200,"method":"GET","path":"/api/error-logs","ip":"::1","latency":1.7213067}
 {"level":"ERROR","time":"2025-11-05 22:03:18","caller":"handlers/log_handler.go:136","msg":"Failed to get performance metrics","error":"failed to query performance metrics: clickhouse: unsupported column type \"JSON\""}
 {"level":"INFO","time":"2025-11-05 22:03:18","caller":"middleware/logger.go:74","msg":"HTTP Request","status":500,"method":"GET","path":"/api/performance-metrics","ip":"::1","latency":0.088595}
+{"level":"INFO","time":"2025-11-05 22:05:41","caller":"repository/clickhouse_repository.go:39","msg":"Initializing ClickHouse connection","host":"ci5eaxwoe9.asia-southeast1.gcp.clickhouse.cloud","port":8443,"database":"default","username":"default","debug":true}
+{"level":"INFO","time":"2025-11-05 22:05:41","caller":"repository/clickhouse_repository.go:67","msg":"Testing database connection..."}
+{"level":"INFO","time":"2025-11-05 22:05:43","caller":"repository/clickhouse_repository.go:73","msg":"Successfully connected to ClickHouse database"}
+{"level":"INFO","time":"2025-11-05 22:05:43","caller":"spectra-backend/main.go:50","msg":"Starting server","address":"0.0.0.0:8080"}
+{"level":"ERROR","time":"2025-11-05 22:05:51","caller":"handlers/log_handler.go:159","msg":"Failed to get performance metrics","project_id":"demo-project","start_time":"2025-11-04 14:05:50","end_time":"2025-11-05 14:05:50","error":"failed to query performance metrics: clickhouse: unsupported column type \"JSON\""}
+{"level":"INFO","time":"2025-11-05 22:05:51","caller":"middleware/logger.go:74","msg":"HTTP Request","status":500,"method":"GET","path":"/api/performance-metrics","ip":"::1","latency":0.3073092}
+{"level":"INFO","time":"2025-11-05 22:07:29","caller":"repository/clickhouse_repository.go:39","msg":"Initializing ClickHouse connection","host":"ci5eaxwoe9.asia-southeast1.gcp.clickhouse.cloud","port":8443,"database":"default","username":"default","debug":true}
+{"level":"INFO","time":"2025-11-05 22:07:29","caller":"repository/clickhouse_repository.go:67","msg":"Testing database connection..."}
+{"level":"INFO","time":"2025-11-05 22:07:30","caller":"repository/clickhouse_repository.go:73","msg":"Successfully connected to ClickHouse database"}
+{"level":"INFO","time":"2025-11-05 22:07:30","caller":"spectra-backend/main.go:50","msg":"Starting server","address":"0.0.0.0:8080"}
+{"level":"ERROR","time":"2025-11-05 22:07:35","caller":"handlers/log_handler.go:159","msg":"Failed to get performance metrics","project_id":"demo-project","start_time":"2025-11-04 14:07:34","end_time":"2025-11-05 14:07:34","error":"failed to query performance metrics: clickhouse: unsupported column type \"JSON\""}
+{"level":"INFO","time":"2025-11-05 22:07:35","caller":"middleware/logger.go:74","msg":"HTTP Request","status":500,"method":"GET","path":"/api/performance-metrics","ip":"::1","latency":0.4711988}
+{"level":"INFO","time":"2025-11-05 22:09:41","caller":"repository/clickhouse_repository.go:39","msg":"Initializing ClickHouse connection","host":"ci5eaxwoe9.asia-southeast1.gcp.clickhouse.cloud","port":8443,"database":"default","username":"default","debug":true}
+{"level":"INFO","time":"2025-11-05 22:09:41","caller":"repository/clickhouse_repository.go:67","msg":"Testing database connection..."}
+{"level":"INFO","time":"2025-11-05 22:09:42","caller":"repository/clickhouse_repository.go:73","msg":"Successfully connected to ClickHouse database"}
+{"level":"INFO","time":"2025-11-05 22:09:42","caller":"spectra-backend/main.go:50","msg":"Starting server","address":"0.0.0.0:8080"}
+{"level":"INFO","time":"2025-11-05 22:09:46","caller":"middleware/logger.go:74","msg":"HTTP Request","status":200,"method":"GET","path":"/api/performance-metrics","ip":"::1","latency":0.0902199}
+{"level":"ERROR","time":"2025-11-05 22:09:56","caller":"handlers/log_handler.go:215","msg":"Failed to get user actions","error":"failed to query user actions: clickhouse: unsupported column type \"JSON\""}
+{"level":"INFO","time":"2025-11-05 22:09:56","caller":"middleware/logger.go:74","msg":"HTTP Request","status":500,"method":"GET","path":"/api/user-actions","ip":"::1","latency":0.0922554}

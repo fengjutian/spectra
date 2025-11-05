@@ -274,11 +274,11 @@ func (r *ClickHouseRepository) SavePerformanceMetric(ctx context.Context, metric
 //   - []*models.PerformanceMetric: 性能指标列表
 //   - error: 查询过程中的错误信息，成功则为nil
 func (r *ClickHouseRepository) GetPerformanceMetrics(ctx context.Context, projectID string, startTime, endTime time.Time) ([]*models.PerformanceMetric, error) {
-	// 定义SQL查询语句，按时间倒序排列
-	query := `SELECT timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, value, extra 
-		FROM performance_metrics 
-		WHERE project_id = ? AND timestamp >= ? AND timestamp <= ? 
-		ORDER BY timestamp DESC`
+    // 定义SQL查询语句，按时间倒序排列
+    query := `SELECT timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, value, CAST(extra AS String) 
+        FROM performance_metrics 
+        WHERE project_id = ? AND timestamp >= ? AND timestamp <= ? 
+        ORDER BY timestamp DESC`
 
 	// 执行查询
 	rows, err := r.DB.QueryContext(ctx, query, projectID, startTime, endTime)
@@ -289,17 +289,23 @@ func (r *ClickHouseRepository) GetPerformanceMetrics(ctx context.Context, projec
 
 	var metrics []*models.PerformanceMetric
 	// 遍历查询结果
-	for rows.Next() {
-		var metric models.PerformanceMetric
-		err := rows.Scan(
-			&metric.Timestamp, &metric.ProjectID, &metric.SessionID, &metric.TraceID, &metric.UserID,
-			&metric.URL, &metric.Referrer, &metric.Type, &metric.Name, &metric.Value, &metric.Extra)
-		if err != nil {
-			return nil, fmt.Errorf("failed to scan performance metric: %w", err)
-		}
-		metrics = append(metrics, &metric)
-	}
-	return metrics, nil
+    for rows.Next() {
+        var metric models.PerformanceMetric
+        var extraStr sql.NullString
+        err := rows.Scan(
+            &metric.Timestamp, &metric.ProjectID, &metric.SessionID, &metric.TraceID, &metric.UserID,
+            &metric.URL, &metric.Referrer, &metric.Type, &metric.Name, &metric.Value, &extraStr)
+        if err != nil {
+            return nil, fmt.Errorf("failed to scan performance metric: %w", err)
+        }
+        if extraStr.Valid {
+            metric.Extra = json.RawMessage(extraStr.String)
+        } else {
+            metric.Extra = json.RawMessage("{}")
+        }
+        metrics = append(metrics, &metric)
+    }
+    return metrics, nil
 }
 
 // GetPerformanceMetricsByType 获取指定项目、指定类型在时间范围内的性能指标
@@ -314,11 +320,11 @@ func (r *ClickHouseRepository) GetPerformanceMetrics(ctx context.Context, projec
 //   - []*models.PerformanceMetric: 性能指标列表
 //   - error: 查询过程中的错误信息，成功则为nil
 func (r *ClickHouseRepository) GetPerformanceMetricsByType(ctx context.Context, projectID string, metricType string, startTime, endTime time.Time) ([]*models.PerformanceMetric, error) {
-	// 定义SQL查询语句，按类型和时间范围筛选，时间倒序排列
-	query := `SELECT timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, value, extra 
-		FROM performance_metrics 
-		WHERE project_id = ? AND name = ? AND timestamp >= ? AND timestamp <= ? 
-		ORDER BY timestamp DESC`
+    // 定义SQL查询语句，按类型和时间范围筛选，时间倒序排列
+    query := `SELECT timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, value, CAST(extra AS String) 
+        FROM performance_metrics 
+        WHERE project_id = ? AND name = ? AND timestamp >= ? AND timestamp <= ? 
+        ORDER BY timestamp DESC`
 
 	// 执行查询
 	rows, err := r.DB.QueryContext(ctx, query, projectID, metricType, startTime, endTime)
@@ -329,17 +335,23 @@ func (r *ClickHouseRepository) GetPerformanceMetricsByType(ctx context.Context, 
 
 	var metrics []*models.PerformanceMetric
 	// 遍历查询结果
-	for rows.Next() {
-		var metric models.PerformanceMetric
-		err := rows.Scan(
-			&metric.Timestamp, &metric.ProjectID, &metric.SessionID, &metric.TraceID, &metric.UserID,
-			&metric.URL, &metric.Referrer, &metric.Type, &metric.Name, &metric.Value, &metric.Extra)
-		if err != nil {
-			return nil, fmt.Errorf("failed to scan performance metric: %w", err)
-		}
-		metrics = append(metrics, &metric)
-	}
-	return metrics, nil
+    for rows.Next() {
+        var metric models.PerformanceMetric
+        var extraStr sql.NullString
+        err := rows.Scan(
+            &metric.Timestamp, &metric.ProjectID, &metric.SessionID, &metric.TraceID, &metric.UserID,
+            &metric.URL, &metric.Referrer, &metric.Type, &metric.Name, &metric.Value, &extraStr)
+        if err != nil {
+            return nil, fmt.Errorf("failed to scan performance metric: %w", err)
+        }
+        if extraStr.Valid {
+            metric.Extra = json.RawMessage(extraStr.String)
+        } else {
+            metric.Extra = json.RawMessage("{}")
+        }
+        metrics = append(metrics, &metric)
+    }
+    return metrics, nil
 }
 
 // SaveUserAction 保存用户行为数据到数据库
