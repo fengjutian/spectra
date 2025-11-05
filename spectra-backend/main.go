@@ -31,7 +31,7 @@ func main() {
 	r.Static("/static", "./static")
 	r.LoadHTMLGlob("templates/*")
 
-	router.HomeRoutes(r, logger)
+	router.SetupRoutes(r, cfg, logger)
 
 	// 启动服务器
 	serverAddr := fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.Port)

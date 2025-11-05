@@ -9,6 +9,7 @@ type Config struct {
 	App    AppConfig    `mapstructure:"app"`
 	Server ServerConfig `mapstructure:"server"`
 	Log    LogConfig    `mapstructure:"log"`
+	DB     DBConfig     `mapstructure:"db"`
 }
 
 // AppConfig 应用基本配置
@@ -66,6 +67,17 @@ func LoadConfig() (*Config, error) {
 	return &config, nil
 }
 
+// DBConfig 数据库配置
+type DBConfig struct {
+	Driver   string `mapstructure:"driver"`
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
+	Database string `mapstructure:"database"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+	Debug    bool   `mapstructure:"debug"`
+}
+
 // setDefaultConfig 设置默认配置
 func setDefaultConfig() {
 	// App 默认配置
@@ -85,4 +97,13 @@ func setDefaultConfig() {
 	viper.SetDefault("log.max_size", 500)
 	viper.SetDefault("log.max_age", 30)
 	viper.SetDefault("log.compress", true)
+
+	// DB 默认配置
+	viper.SetDefault("db.driver", "clickhouse")
+	viper.SetDefault("db.host", "https://ci5eaxwoe9.asia-southeast1.gcp.clickhouse.cloud:8443")
+	viper.SetDefault("db.port", 9000)
+	viper.SetDefault("db.database", "spectra_log_data")
+	viper.SetDefault("db.username", "default")
+	viper.SetDefault("db.password", "QhH_vObgVEGw6")
+	viper.SetDefault("db.debug", false)
 }
