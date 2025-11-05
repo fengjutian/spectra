@@ -1,13 +1,14 @@
 package middleware
 
 import (
-	"spectra-backend/config"
-	"time"
+    "os"
+    "spectra-backend/config"
+    "time"
 
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-	"gopkg.in/natefinch/lumberjack.v2"
+    "github.com/gin-gonic/gin"
+    "go.uber.org/zap"
+    "go.uber.org/zap/zapcore"
+    "gopkg.in/natefinch/lumberjack.v2"
 )
 
 func InitLogger() *zap.Logger {
@@ -41,13 +42,23 @@ func InitLogger() *zap.Logger {
 		level = zap.InfoLevel
 	}
 
-	// 设置日志输出，使用配置文件中的值
-	writeSyncer := getLogWriter(cfg.Log.Path, cfg.Log.MaxSize, cfg.Log.MaxAge, 10)
-	encoder := getEncoder()
+    // 文件输出（JSON编码）
+    fileWS := getLogWriter(cfg.Log.Path, cfg.Log.MaxSize, cfg.Log.MaxAge, 10)
+    fileEncoder := getJSONEncoder()
+    fileCore := zapcore.NewCore(fileEncoder, fileWS, level)
 
-	core := zapcore.NewCore(encoder, writeSyncer, level)
+    // 控制台输出（开发环境启用，Console编码更易读）
+    var core zapcore.Core
+    if cfg.App.Environment == "development" {
+        consoleWS := zapcore.AddSync(os.Stdout)
+        consoleEncoder := getConsoleEncoder()
+        consoleCore := zapcore.NewCore(consoleEncoder, consoleWS, level)
+        core = zapcore.NewTee(fileCore, consoleCore)
+    } else {
+        core = fileCore
+    }
 
-	logger := zap.New(core, zap.AddCaller())
+    logger := zap.New(core, zap.AddCaller())
 
 	return logger
 }
@@ -71,25 +82,36 @@ func GinLogger(logger *zap.Logger) gin.HandlerFunc {
 }
 
 func getLogWriter(filePath string, maxSize, maxAge, maxBackups int) zapcore.WriteSyncer {
-	lumberJackLogger := &lumberjack.Logger{
-		Filename:   filePath,
-		MaxSize:    maxSize,
-		MaxAge:     maxAge,
-		MaxBackups: maxBackups,
-		Compress:   true,
-	}
-	return zapcore.AddSync(lumberJackLogger)
+    lumberJackLogger := &lumberjack.Logger{
+        Filename:   filePath,
+        MaxSize:    maxSize,
+        MaxAge:     maxAge,
+        MaxBackups: maxBackups,
+        Compress:   true,
+    }
+    return zapcore.AddSync(lumberJackLogger)
 }
 
-// getEncoder 创建日志编码器
-func getEncoder() zapcore.Encoder {
-	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.EncodeTime = customTimeEncoder
-	encoderConfig.TimeKey = "time"
-	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
-	encoderConfig.EncodeDuration = zapcore.SecondsDurationEncoder
-	encoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
-	return zapcore.NewJSONEncoder(encoderConfig)
+// 文件 JSON 编码器
+func getJSONEncoder() zapcore.Encoder {
+    encoderConfig := zap.NewProductionEncoderConfig()
+    encoderConfig.EncodeTime = customTimeEncoder
+    encoderConfig.TimeKey = "time"
+    encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+    encoderConfig.EncodeDuration = zapcore.SecondsDurationEncoder
+    encoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
+    return zapcore.NewJSONEncoder(encoderConfig)
+}
+
+// 控制台编码器（更易读）
+func getConsoleEncoder() zapcore.Encoder {
+    encoderConfig := zap.NewDevelopmentEncoderConfig()
+    encoderConfig.EncodeTime = customTimeEncoder
+    encoderConfig.TimeKey = "time"
+    encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+    encoderConfig.EncodeDuration = zapcore.SecondsDurationEncoder
+    encoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
+    return zapcore.NewConsoleEncoder(encoderConfig)
 }
 
 func customTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
