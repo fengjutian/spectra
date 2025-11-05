@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"os"
+	"spectra-backend/config"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -11,45 +11,44 @@ import (
 )
 
 func InitLogger() *zap.Logger {
-	// 确保 logs 目录存在
-	if _, err := os.Stat("logs"); os.IsNotExist(err) {
-		os.Mkdir("logs", 0755)
+	// 加载配置
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		// 如果加载配置失败，使用默认值
+		cfg = &config.Config{
+			Log: config.LogConfig{
+				Level:    "info",
+				Path:     "./logs/app.log",
+				MaxSize:  500,
+				MaxAge:   30,
+				Compress: true,
+			},
+		}
 	}
 
-	// 配置 lumberjack 进行日志轮转
-	hook := &lumberjack.Logger{
-		Filename:   "logs/app.log", // 日志文件路径
-		MaxSize:    10,             // 每个日志文件最大 10MB
-		MaxBackups: 7,              // 最多保留 7 个旧文件
-		MaxAge:     30,             // 最多保留 30 天
-		Compress:   true,           // 压缩归档
+	// 设置日志级别
+	level := zap.InfoLevel
+	switch cfg.Log.Level {
+	case "debug":
+		level = zap.DebugLevel
+	case "info":
+		level = zap.InfoLevel
+	case "warn":
+		level = zap.WarnLevel
+	case "error":
+		level = zap.ErrorLevel
+	default:
+		level = zap.InfoLevel
 	}
 
-	// 编码器配置（时间格式、日志级别）
-	encoderConfig := zapcore.EncoderConfig{
-		TimeKey:        "time",
-		LevelKey:       "level",
-		NameKey:        "logger",
-		CallerKey:      "caller",
-		MessageKey:     "msg",
-		StacktraceKey:  "stacktrace",
-		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    zapcore.CapitalColorLevelEncoder, // 彩色级别输出
-		EncodeTime:     customTimeEncoder,
-		EncodeDuration: zapcore.SecondsDurationEncoder,
-		EncodeCaller:   zapcore.ShortCallerEncoder,
-	}
+	// 设置日志输出，使用配置文件中的值
+	writeSyncer := getLogWriter(cfg.Log.Path, cfg.Log.MaxSize, cfg.Log.MaxAge, 10)
+	encoder := getEncoder()
 
-	consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
-	fileEncoder := zapcore.NewJSONEncoder(encoderConfig)
+	core := zapcore.NewCore(encoder, writeSyncer, level)
 
-	// 同时输出到控制台和文件
-	core := zapcore.NewTee(
-		zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), zapcore.DebugLevel),
-		zapcore.NewCore(fileEncoder, zapcore.AddSync(hook), zapcore.InfoLevel),
-	)
+	logger := zap.New(core, zap.AddCaller())
 
-	logger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
 	return logger
 }
 
@@ -70,6 +69,29 @@ func GinLogger(logger *zap.Logger) gin.HandlerFunc {
 			zap.Duration("latency", latency),
 		)
 	}
+}
+
+// getLogWriter 创建日志写入器
+func getLogWriter(filePath string, maxSize, maxAge, maxBackups int) zapcore.WriteSyncer {
+	lumberJackLogger := &lumberjack.Logger{
+		Filename:   filePath,
+		MaxSize:    maxSize,
+		MaxAge:     maxAge,
+		MaxBackups: maxBackups,
+		Compress:   true,
+	}
+	return zapcore.AddSync(lumberJackLogger)
+}
+
+// getEncoder 创建日志编码器
+func getEncoder() zapcore.Encoder {
+	encoderConfig := zap.NewProductionEncoderConfig()
+	encoderConfig.EncodeTime = customTimeEncoder
+	encoderConfig.TimeKey = "time"
+	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+	encoderConfig.EncodeDuration = zapcore.SecondsDurationEncoder
+	encoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
+	return zapcore.NewJSONEncoder(encoderConfig)
 }
 
 func customTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {

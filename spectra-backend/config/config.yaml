@@ -1,0 +1,17 @@
+app:
+  name: spectra-backend
+  version: 1.0.0
+  environment: development
+
+server:
+  port: 8080
+  host: 0.0.0.0
+  read_timeout: 15
+  write_timeout: 15
+
+log:
+  level: info
+  path: ./logs/app.log
+  max_size: 500
+  max_age: 30
+  compress: true
