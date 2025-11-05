@@ -198,26 +198,63 @@ func (h *LogHandler) RecordUserAction(c *gin.Context) {
 
 // GetUserActions 获取用户行为列表
 func (h *LogHandler) GetUserActions(c *gin.Context) {
-	projectID := c.Query("project_id")
-	if projectID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "project_id is required"})
-		return
-	}
+    projectID := c.Query("project_id")
+    if projectID == "" {
+        h.logger.Error("Missing project_id for user actions request")
+        c.JSON(http.StatusBadRequest, gin.H{"error": "project_id is required"})
+        return
+    }
 
-	startTime, endTime, err := parseTimeRange(c)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+    // Debug: raw inputs
+    h.logger.Debug(
+        "GetUserActions request",
+        zap.String("project_id", projectID),
+        zap.String("start_time_raw", c.Query("start_time")),
+        zap.String("end_time_raw", c.Query("end_time")),
+    )
 
-	actions, err := h.logService.GetUserActions(c.Request.Context(), projectID, startTime, endTime)
-	if err != nil {
-		h.logger.Error("Failed to get user actions", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user actions"})
-		return
-	}
+    startTime, endTime, err := parseTimeRange(c)
+    if err != nil {
+        h.logger.Error(
+            "Failed to parse time range for user actions",
+            zap.String("project_id", projectID),
+            zap.String("start_time_raw", c.Query("start_time")),
+            zap.String("end_time_raw", c.Query("end_time")),
+            zap.Error(err),
+        )
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
 
-	c.JSON(http.StatusOK, actions)
+    h.logger.Debug(
+        "Parsed time range for user actions",
+        zap.String("project_id", projectID),
+        zap.Time("start_time", startTime),
+        zap.Time("end_time", endTime),
+    )
+
+    actions, err := h.logService.GetUserActions(c.Request.Context(), projectID, startTime, endTime)
+    if err != nil {
+        h.logger.Error(
+            "Failed to get user actions",
+            zap.String("project_id", projectID),
+            zap.Time("start_time", startTime),
+            zap.Time("end_time", endTime),
+            zap.Error(err),
+        )
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user actions"})
+        return
+    }
+
+    h.logger.Debug(
+        "Fetched user actions",
+        zap.String("project_id", projectID),
+        zap.Int("count", len(actions)),
+        zap.Time("start_time", startTime),
+        zap.Time("end_time", endTime),
+    )
+
+    c.JSON(http.StatusOK, actions)
 }
 
 // RecordCustomEvent 记录自定义事件
@@ -255,26 +292,63 @@ func (h *LogHandler) RecordCustomEvent(c *gin.Context) {
 
 // GetCustomEvents 获取自定义事件列表
 func (h *LogHandler) GetCustomEvents(c *gin.Context) {
-	projectID := c.Query("project_id")
-	if projectID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "project_id is required"})
-		return
-	}
+    projectID := c.Query("project_id")
+    if projectID == "" {
+        h.logger.Error("Missing project_id for custom events request")
+        c.JSON(http.StatusBadRequest, gin.H{"error": "project_id is required"})
+        return
+    }
 
-	startTime, endTime, err := parseTimeRange(c)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+    // Debug: raw inputs
+    h.logger.Debug(
+        "GetCustomEvents request",
+        zap.String("project_id", projectID),
+        zap.String("start_time_raw", c.Query("start_time")),
+        zap.String("end_time_raw", c.Query("end_time")),
+    )
 
-	events, err := h.logService.GetCustomEvents(c.Request.Context(), projectID, startTime, endTime)
-	if err != nil {
-		h.logger.Error("Failed to get custom events", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get custom events"})
-		return
-	}
+    startTime, endTime, err := parseTimeRange(c)
+    if err != nil {
+        h.logger.Error(
+            "Failed to parse time range for custom events",
+            zap.String("project_id", projectID),
+            zap.String("start_time_raw", c.Query("start_time")),
+            zap.String("end_time_raw", c.Query("end_time")),
+            zap.Error(err),
+        )
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
 
-	c.JSON(http.StatusOK, events)
+    h.logger.Debug(
+        "Parsed time range for custom events",
+        zap.String("project_id", projectID),
+        zap.Time("start_time", startTime),
+        zap.Time("end_time", endTime),
+    )
+
+    events, err := h.logService.GetCustomEvents(c.Request.Context(), projectID, startTime, endTime)
+    if err != nil {
+        h.logger.Error(
+            "Failed to get custom events",
+            zap.String("project_id", projectID),
+            zap.Time("start_time", startTime),
+            zap.Time("end_time", endTime),
+            zap.Error(err),
+        )
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get custom events"})
+        return
+    }
+
+    h.logger.Debug(
+        "Fetched custom events",
+        zap.String("project_id", projectID),
+        zap.Int("count", len(events)),
+        zap.Time("start_time", startTime),
+        zap.Time("end_time", endTime),
+    )
+
+    c.JSON(http.StatusOK, events)
 }
 
 // RecordPageStay 记录页面停留时长

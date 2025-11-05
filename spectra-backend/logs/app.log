@@ -287,3 +287,37 @@
 {"level":"INFO","time":"2025-11-05 22:09:46","caller":"middleware/logger.go:74","msg":"HTTP Request","status":200,"method":"GET","path":"/api/performance-metrics","ip":"::1","latency":0.0902199}
 {"level":"ERROR","time":"2025-11-05 22:09:56","caller":"handlers/log_handler.go:215","msg":"Failed to get user actions","error":"failed to query user actions: clickhouse: unsupported column type \"JSON\""}
 {"level":"INFO","time":"2025-11-05 22:09:56","caller":"middleware/logger.go:74","msg":"HTTP Request","status":500,"method":"GET","path":"/api/user-actions","ip":"::1","latency":0.0922554}
+{"level":"INFO","time":"2025-11-05 22:11:39","caller":"repository/clickhouse_repository.go:39","msg":"Initializing ClickHouse connection","host":"ci5eaxwoe9.asia-southeast1.gcp.clickhouse.cloud","port":8443,"database":"default","username":"default","debug":true}
+{"level":"INFO","time":"2025-11-05 22:11:39","caller":"repository/clickhouse_repository.go:67","msg":"Testing database connection..."}
+{"level":"INFO","time":"2025-11-05 22:11:40","caller":"repository/clickhouse_repository.go:73","msg":"Successfully connected to ClickHouse database"}
+{"level":"INFO","time":"2025-11-05 22:11:40","caller":"spectra-backend/main.go:50","msg":"Starting server","address":"0.0.0.0:8080"}
+{"level":"ERROR","time":"2025-11-05 22:11:53","caller":"handlers/log_handler.go:238","msg":"Failed to get user actions","project_id":"demo-project","start_time":"2025-11-04 14:11:52","end_time":"2025-11-05 14:11:52","error":"failed to query user actions: clickhouse: unsupported column type \"JSON\""}
+{"level":"INFO","time":"2025-11-05 22:11:53","caller":"middleware/logger.go:74","msg":"HTTP Request","status":500,"method":"GET","path":"/api/user-actions","ip":"::1","latency":1.4263097}
+{"level":"INFO","time":"2025-11-05 22:15:15","caller":"repository/clickhouse_repository.go:39","msg":"Initializing ClickHouse connection","host":"ci5eaxwoe9.asia-southeast1.gcp.clickhouse.cloud","port":8443,"database":"default","username":"default","debug":true}
+{"level":"INFO","time":"2025-11-05 22:15:15","caller":"repository/clickhouse_repository.go:67","msg":"Testing database connection..."}
+{"level":"INFO","time":"2025-11-05 22:15:16","caller":"repository/clickhouse_repository.go:73","msg":"Successfully connected to ClickHouse database"}
+{"level":"INFO","time":"2025-11-05 22:15:16","caller":"spectra-backend/main.go:50","msg":"Starting server","address":"0.0.0.0:8080"}
+{"level":"ERROR","time":"2025-11-05 22:15:20","caller":"handlers/log_handler.go:309","msg":"Failed to get custom events","error":"failed to query custom events: clickhouse: unsupported column type \"JSON\""}
+{"level":"INFO","time":"2025-11-05 22:15:20","caller":"middleware/logger.go:74","msg":"HTTP Request","status":500,"method":"GET","path":"/api/custom-events","ip":"::1","latency":0.105382}
+{"level":"ERROR","time":"2025-11-05 22:15:22","caller":"handlers/log_handler.go:238","msg":"Failed to get user actions","project_id":"demo-project","start_time":"2025-11-04 14:15:22","end_time":"2025-11-05 14:15:22","error":"failed to scan user action: sql: Scan error on column index 10, name \"method\": destination not a pointer"}
+{"level":"INFO","time":"2025-11-05 22:15:22","caller":"middleware/logger.go:74","msg":"HTTP Request","status":500,"method":"GET","path":"/api/user-actions","ip":"::1","latency":0.0850719}
+{"level":"INFO","time":"2025-11-05 22:15:27","caller":"middleware/logger.go:74","msg":"HTTP Request","status":200,"method":"GET","path":"/api/performance-metrics","ip":"::1","latency":0.0874796}
+{"level":"ERROR","time":"2025-11-05 22:15:31","caller":"handlers/log_handler.go:238","msg":"Failed to get user actions","project_id":"demo-project","start_time":"2025-11-04 14:15:31","end_time":"2025-11-05 14:15:31","error":"failed to scan user action: sql: Scan error on column index 10, name \"method\": destination not a pointer"}
+{"level":"INFO","time":"2025-11-05 22:15:31","caller":"middleware/logger.go:74","msg":"HTTP Request","status":500,"method":"GET","path":"/api/user-actions","ip":"::1","latency":0.1278403}
+{"level":"INFO","time":"2025-11-05 22:16:18","caller":"repository/clickhouse_repository.go:39","msg":"Initializing ClickHouse connection","host":"ci5eaxwoe9.asia-southeast1.gcp.clickhouse.cloud","port":8443,"database":"default","username":"default","debug":true}
+{"level":"INFO","time":"2025-11-05 22:16:18","caller":"repository/clickhouse_repository.go:67","msg":"Testing database connection..."}
+{"level":"INFO","time":"2025-11-05 22:16:19","caller":"repository/clickhouse_repository.go:73","msg":"Successfully connected to ClickHouse database"}
+{"level":"INFO","time":"2025-11-05 22:16:19","caller":"spectra-backend/main.go:50","msg":"Starting server","address":"0.0.0.0:8080"}
+{"level":"INFO","time":"2025-11-05 22:16:28","caller":"middleware/logger.go:74","msg":"HTTP Request","status":200,"method":"GET","path":"/api/user-actions","ip":"::1","latency":0.1054413}
+{"level":"ERROR","time":"2025-11-05 22:16:48","caller":"handlers/log_handler.go:309","msg":"Failed to get custom events","error":"failed to query custom events: clickhouse: unsupported column type \"JSON\""}
+{"level":"INFO","time":"2025-11-05 22:16:48","caller":"middleware/logger.go:74","msg":"HTTP Request","status":500,"method":"GET","path":"/api/custom-events","ip":"::1","latency":0.5098649}
+{"level":"INFO","time":"2025-11-05 22:19:42","caller":"repository/clickhouse_repository.go:39","msg":"Initializing ClickHouse connection","host":"ci5eaxwoe9.asia-southeast1.gcp.clickhouse.cloud","port":8443,"database":"default","username":"default","debug":true}
+{"level":"INFO","time":"2025-11-05 22:19:42","caller":"repository/clickhouse_repository.go:67","msg":"Testing database connection..."}
+{"level":"INFO","time":"2025-11-05 22:19:44","caller":"repository/clickhouse_repository.go:73","msg":"Successfully connected to ClickHouse database"}
+{"level":"INFO","time":"2025-11-05 22:19:44","caller":"spectra-backend/main.go:50","msg":"Starting server","address":"0.0.0.0:8080"}
+{"level":"ERROR","time":"2025-11-05 22:20:01","caller":"handlers/log_handler.go:332","msg":"Failed to get custom events","project_id":"demo-project","start_time":"2025-11-04 14:20:01","end_time":"2025-11-05 14:20:01","error":"failed to query custom events: clickhouse: unsupported column type \"JSON\""}
+{"level":"INFO","time":"2025-11-05 22:20:01","caller":"middleware/logger.go:74","msg":"HTTP Request","status":500,"method":"GET","path":"/api/custom-events","ip":"::1","latency":0.3920067}
+{"level":"INFO","time":"2025-11-05 22:20:42","caller":"repository/clickhouse_repository.go:39","msg":"Initializing ClickHouse connection","host":"ci5eaxwoe9.asia-southeast1.gcp.clickhouse.cloud","port":8443,"database":"default","username":"default","debug":true}
+{"level":"INFO","time":"2025-11-05 22:20:42","caller":"repository/clickhouse_repository.go:67","msg":"Testing database connection..."}
+{"level":"INFO","time":"2025-11-05 22:20:43","caller":"repository/clickhouse_repository.go:73","msg":"Successfully connected to ClickHouse database"}
+{"level":"INFO","time":"2025-11-05 22:20:43","caller":"spectra-backend/main.go:50","msg":"Starting server","address":"0.0.0.0:8080"}

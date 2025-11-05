@@ -275,7 +275,7 @@ func (r *ClickHouseRepository) SavePerformanceMetric(ctx context.Context, metric
 //   - error: 查询过程中的错误信息，成功则为nil
 func (r *ClickHouseRepository) GetPerformanceMetrics(ctx context.Context, projectID string, startTime, endTime time.Time) ([]*models.PerformanceMetric, error) {
     // 定义SQL查询语句，按时间倒序排列
-    query := `SELECT timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, value, CAST(extra AS String) 
+    query := `SELECT timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, value, CAST(extra AS String)
         FROM performance_metrics 
         WHERE project_id = ? AND timestamp >= ? AND timestamp <= ? 
         ORDER BY timestamp DESC`
@@ -393,11 +393,11 @@ func (r *ClickHouseRepository) SaveUserAction(ctx context.Context, action *model
 //   - []*models.UserAction: 用户行为列表
 //   - error: 查询过程中的错误信息，成功则为nil
 func (r *ClickHouseRepository) GetUserActions(ctx context.Context, projectID string, startTime, endTime time.Time) ([]*models.UserAction, error) {
-	// 定义SQL查询语句，按时间倒序排列
-	query := `SELECT timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, method, status, value, extra 
-		FROM user_actions 
-		WHERE project_id = ? AND timestamp >= ? AND timestamp <= ? 
-		ORDER BY timestamp DESC`
+    // 定义SQL查询语句，按时间倒序排列
+    query := `SELECT timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, method, status, value, CAST(extra AS String) 
+        FROM user_actions 
+        WHERE project_id = ? AND timestamp >= ? AND timestamp <= ? 
+        ORDER BY timestamp DESC`
 
 	// 执行查询
 	rows, err := r.DB.QueryContext(ctx, query, projectID, startTime, endTime)
@@ -408,18 +408,24 @@ func (r *ClickHouseRepository) GetUserActions(ctx context.Context, projectID str
 
 	var actions []*models.UserAction
 	// 遍历查询结果
-	for rows.Next() {
-		var action models.UserAction
-		err := rows.Scan(
-			&action.Timestamp, &action.ProjectID, &action.SessionID, &action.TraceID, &action.UserID,
-			&action.URL, &action.Referrer, &action.Type, &action.Name, &action.Message, action.Method,
-			action.Status, action.Value, &action.Extra)
-		if err != nil {
-			return nil, fmt.Errorf("failed to scan user action: %w", err)
-		}
-		actions = append(actions, &action)
-	}
-	return actions, nil
+    for rows.Next() {
+        var action models.UserAction
+        var extraStr sql.NullString
+        err := rows.Scan(
+            &action.Timestamp, &action.ProjectID, &action.SessionID, &action.TraceID, &action.UserID,
+            &action.URL, &action.Referrer, &action.Type, &action.Name, &action.Message, &action.Method,
+            &action.Status, &action.Value, &extraStr)
+        if err != nil {
+            return nil, fmt.Errorf("failed to scan user action: %w", err)
+        }
+        if extraStr.Valid {
+            action.Extra = json.RawMessage(extraStr.String)
+        } else {
+            action.Extra = json.RawMessage("{}")
+        }
+        actions = append(actions, &action)
+    }
+    return actions, nil
 }
 
 // GetUserActionsByType 获取指定项目、指定类型在时间范围内的用户行为
@@ -434,11 +440,11 @@ func (r *ClickHouseRepository) GetUserActions(ctx context.Context, projectID str
 //   - []*models.UserAction: 用户行为列表
 //   - error: 查询过程中的错误信息，成功则为nil
 func (r *ClickHouseRepository) GetUserActionsByType(ctx context.Context, projectID string, actionType string, startTime, endTime time.Time) ([]*models.UserAction, error) {
-	// 定义SQL查询语句，按类型和时间范围筛选，时间倒序排列
-	query := `SELECT timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, method, status, value, extra 
-		FROM user_actions 
-		WHERE project_id = ? AND name = ? AND timestamp >= ? AND timestamp <= ? 
-		ORDER BY timestamp DESC`
+    // 定义SQL查询语句，按类型和时间范围筛选，时间倒序排列
+    query := `SELECT timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, method, status, value, CAST(extra AS String) 
+        FROM user_actions 
+        WHERE project_id = ? AND name = ? AND timestamp >= ? AND timestamp <= ? 
+        ORDER BY timestamp DESC`
 
 	// 执行查询
 	rows, err := r.DB.QueryContext(ctx, query, projectID, actionType, startTime, endTime)
@@ -449,18 +455,24 @@ func (r *ClickHouseRepository) GetUserActionsByType(ctx context.Context, project
 
 	var actions []*models.UserAction
 	// 遍历查询结果
-	for rows.Next() {
-		var action models.UserAction
-		err := rows.Scan(
-			&action.Timestamp, &action.ProjectID, &action.SessionID, &action.TraceID, &action.UserID,
-			&action.URL, &action.Referrer, &action.Type, &action.Name, &action.Message, action.Method,
-			action.Status, action.Value, &action.Extra)
-		if err != nil {
-			return nil, fmt.Errorf("failed to scan user action: %w", err)
-		}
-		actions = append(actions, &action)
-	}
-	return actions, nil
+    for rows.Next() {
+        var action models.UserAction
+        var extraStr sql.NullString
+        err := rows.Scan(
+            &action.Timestamp, &action.ProjectID, &action.SessionID, &action.TraceID, &action.UserID,
+            &action.URL, &action.Referrer, &action.Type, &action.Name, &action.Message, &action.Method,
+            &action.Status, &action.Value, &extraStr)
+        if err != nil {
+            return nil, fmt.Errorf("failed to scan user action: %w", err)
+        }
+        if extraStr.Valid {
+            action.Extra = json.RawMessage(extraStr.String)
+        } else {
+            action.Extra = json.RawMessage("{}")
+        }
+        actions = append(actions, &action)
+    }
+    return actions, nil
 }
 
 // SaveCustomEvent 保存自定义事件数据到数据库
@@ -501,11 +513,11 @@ func (r *ClickHouseRepository) SaveCustomEvent(ctx context.Context, event *model
 //   - []*models.CustomEvent: 自定义事件列表
 //   - error: 查询过程中的错误信息，成功则为nil
 func (r *ClickHouseRepository) GetCustomEvents(ctx context.Context, projectID string, startTime, endTime time.Time) ([]*models.CustomEvent, error) {
-	// 定义SQL查询语句，按时间倒序排列
-	query := `SELECT timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, extra 
-		FROM custom_events 
-		WHERE project_id = ? AND timestamp >= ? AND timestamp <= ? 
-		ORDER BY timestamp DESC`
+    // 定义SQL查询语句，按时间倒序排列
+    query := `SELECT timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, CAST(extra AS String) 
+        FROM custom_events 
+        WHERE project_id = ? AND timestamp >= ? AND timestamp <= ? 
+        ORDER BY timestamp DESC`
 
 	// 执行查询
 	rows, err := r.DB.QueryContext(ctx, query, projectID, startTime, endTime)
@@ -516,17 +528,23 @@ func (r *ClickHouseRepository) GetCustomEvents(ctx context.Context, projectID st
 
 	var events []*models.CustomEvent
 	// 遍历查询结果
-	for rows.Next() {
-		var event models.CustomEvent
-		err := rows.Scan(
-			&event.Timestamp, &event.ProjectID, &event.SessionID, &event.TraceID, &event.UserID,
-			&event.URL, &event.Referrer, &event.Type, &event.Name, &event.Message, &event.Extra)
-		if err != nil {
-			return nil, fmt.Errorf("failed to scan custom event: %w", err)
-		}
-		events = append(events, &event)
-	}
-	return events, nil
+    for rows.Next() {
+        var event models.CustomEvent
+        var extraStr sql.NullString
+        err := rows.Scan(
+            &event.Timestamp, &event.ProjectID, &event.SessionID, &event.TraceID, &event.UserID,
+            &event.URL, &event.Referrer, &event.Type, &event.Name, &event.Message, &extraStr)
+        if err != nil {
+            return nil, fmt.Errorf("failed to scan custom event: %w", err)
+        }
+        if extraStr.Valid {
+            event.Extra = json.RawMessage(extraStr.String)
+        } else {
+            event.Extra = json.RawMessage("{}")
+        }
+        events = append(events, &event)
+    }
+    return events, nil
 }
 
 // GetCustomEventsByName 获取指定项目、指定名称在时间范围内的自定义事件
@@ -541,11 +559,11 @@ func (r *ClickHouseRepository) GetCustomEvents(ctx context.Context, projectID st
 //   - []*models.CustomEvent: 自定义事件列表
 //   - error: 查询过程中的错误信息，成功则为nil
 func (r *ClickHouseRepository) GetCustomEventsByName(ctx context.Context, projectID string, eventName string, startTime, endTime time.Time) ([]*models.CustomEvent, error) {
-	// 定义SQL查询语句，按名称和时间范围筛选，时间倒序排列
-	query := `SELECT timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, extra 
-		FROM custom_events 
-		WHERE project_id = ? AND name = ? AND timestamp >= ? AND timestamp <= ? 
-		ORDER BY timestamp DESC`
+    // 定义SQL查询语句，按名称和时间范围筛选，时间倒序排列
+    query := `SELECT timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, CAST(extra AS String) 
+        FROM custom_events 
+        WHERE project_id = ? AND name = ? AND timestamp >= ? AND timestamp <= ? 
+        ORDER BY timestamp DESC`
 
 	// 执行查询
 	rows, err := r.DB.QueryContext(ctx, query, projectID, eventName, startTime, endTime)
@@ -556,17 +574,23 @@ func (r *ClickHouseRepository) GetCustomEventsByName(ctx context.Context, projec
 
 	var events []*models.CustomEvent
 	// 遍历查询结果
-	for rows.Next() {
-		var event models.CustomEvent
-		err := rows.Scan(
-			&event.Timestamp, &event.ProjectID, &event.SessionID, &event.TraceID, &event.UserID,
-			&event.URL, &event.Referrer, &event.Type, &event.Name, &event.Message, &event.Extra)
-		if err != nil {
-			return nil, fmt.Errorf("failed to scan custom event: %w", err)
-		}
-		events = append(events, &event)
-	}
-	return events, nil
+    for rows.Next() {
+        var event models.CustomEvent
+        var extraStr sql.NullString
+        err := rows.Scan(
+            &event.Timestamp, &event.ProjectID, &event.SessionID, &event.TraceID, &event.UserID,
+            &event.URL, &event.Referrer, &event.Type, &event.Name, &event.Message, &extraStr)
+        if err != nil {
+            return nil, fmt.Errorf("failed to scan custom event: %w", err)
+        }
+        if extraStr.Valid {
+            event.Extra = json.RawMessage(extraStr.String)
+        } else {
+            event.Extra = json.RawMessage("{}")
+        }
+        events = append(events, &event)
+    }
+    return events, nil
 }
 
 // SavePageStay 保存页面停留时间数据到数据库
