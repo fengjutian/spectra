@@ -19,11 +19,15 @@
 }
 
 .button-group {
-  display: flex;
+  /* display: flex; */
   gap: 15px;
-  justify-content: center;
+  /* justify-content: center; */
   margin: 20px 0;
-  flex-wrap: wrap;
+  /* flex-wrap: wrap; */
+
+  &>div {
+    margin-top: 10px;
+  }
 }
 
 .button-group button {
@@ -35,6 +39,7 @@
   cursor: pointer;
   font-size: 14px;
   transition: background-color 0.3s;
+  gap: 10px;
 }
 
 .button-group button:hover:not(:disabled) {

@@ -312,46 +312,59 @@ function App() {
           <h2>API 接口测试</h2>
           
           <div className="button-group">
-            <button onClick={recordErrorLog} disabled={loading}>
-              {loading ? '处理中...' : '记录错误日志'}
-            </button>
-            
-            <button onClick={getErrorLogs} disabled={loading}>
-              {loading ? '查询中...' : '查询错误日志'}
-            </button>
 
-            <button onClick={recordPerformanceMetric} disabled={loading}>
-              {loading ? '处理中...' : '记录性能指标'}
-            </button>
+            <div>
+              <button onClick={recordErrorLog} disabled={loading}>
+                {loading ? '处理中...' : '记录错误日志'}
+              </button>
 
-            <button onClick={getPerformanceMetrics} disabled={loading}>
-              {loading ? '查询中...' : '查询性能指标'}
-            </button>
+              <button onClick={getErrorLogs} disabled={loading}>
+                {loading ? '查询中...' : '查询错误日志'}
+              </button>
+            </div>
 
-            <button onClick={recordUserAction} disabled={loading}>
-              {loading ? '处理中...' : '记录用户行为'}
-            </button>
 
-            <button onClick={getUserActions} disabled={loading}>
-              {loading ? '查询中...' : '查询用户行为'}
-            </button>
+            <div>
+              <button onClick={recordPerformanceMetric} disabled={loading}>
+                {loading ? '处理中...' : '记录性能指标'}
+              </button>
 
-            <button onClick={recordCustomEvent} disabled={loading}>
-              {loading ? '处理中...' : '记录自定义事件'}
-            </button>
+              <button onClick={getPerformanceMetrics} disabled={loading}>
+                {loading ? '查询中...' : '查询性能指标'}
+              </button>
+            </div>
 
-            <button onClick={getCustomEvents} disabled={loading}>
-              {loading ? '查询中...' : '查询自定义事件'}
-            </button>
+            <div>
+              <button onClick={recordUserAction} disabled={loading}>
+                {loading ? '处理中...' : '记录用户行为'}
+              </button>
 
-            <button onClick={recordPageStay} disabled={loading}>
-              {loading ? '处理中...' : '记录页面停留'}
-            </button>
+              <button onClick={getUserActions} disabled={loading}>
+                {loading ? '查询中...' : '查询用户行为'}
+              </button>
 
-            <button onClick={getAveragePageStay} disabled={loading}>
-              {loading ? '查询中...' : '查询平均页面停留'}
-            </button>
-            
+            </div>
+
+            <div>
+              <button onClick={recordCustomEvent} disabled={loading}>
+                {loading ? '处理中...' : '记录自定义事件'}
+              </button>
+
+              <button onClick={getCustomEvents} disabled={loading}>
+                {loading ? '查询中...' : '查询自定义事件'}
+              </button>
+            </div>
+
+            <div>
+              <button onClick={recordPageStay} disabled={loading}>
+                {loading ? '处理中...' : '记录页面停留'}
+              </button>
+
+              <button onClick={getAveragePageStay} disabled={loading}>
+                {loading ? '查询中...' : '查询平均页面停留'}
+              </button>
+            </div>
+
             <button onClick={() => setCount(count + 1)}>
               增加计数器: {count}
             </button>
