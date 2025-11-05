@@ -542,7 +542,7 @@ func (r *ClickHouseRepository) SavePageStay(ctx context.Context, pageStay *model
 	// 执行插入操作
 	_, err := r.DB.ExecContext(ctx, query,
 		pageStay.Timestamp, pageStay.ProjectID, pageStay.SessionID, pageStay.TraceID, pageStay.UserID,
-		pageStay.URL, pageStay.Referrer, pageStay.Type, pageStay.Name, pageStay.Value, pageStay.Extra)
+		pageStay.URL, pageStay.Referrer, pageStay.Type, pageStay.Name, pageStay.Value, extraStr)
 	if err != nil {
 		return fmt.Errorf("failed to save page stay: %w", err)
 	}

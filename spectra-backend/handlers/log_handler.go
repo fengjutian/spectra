@@ -27,19 +27,34 @@ func NewLogHandler(logService services.LogService, logger *zap.Logger) *LogHandl
 
 // RecordErrorLog 记录错误日志
 func (h *LogHandler) RecordErrorLog(c *gin.Context) {
+	h.logger.Debug("RecordErrorLog called", zap.String("method", c.Request.Method), zap.String("content_type", c.GetHeader("Content-Type")))
+
 	var log models.ErrorLog
+	h.logger.Debug("Binding JSON request body")
 	if err := c.ShouldBindJSON(&log); err != nil {
 		h.logger.Error("Failed to bind error log", zap.Error(err))
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
 
+	h.logger.Debug("Successfully bound request body",
+		zap.String("project_id", log.ProjectID),
+		zap.String("session_id", log.SessionID),
+		zap.String("trace_id", log.TraceID),
+		zap.String("user_id", log.UserID),
+		zap.String("url", log.URL),
+		zap.String("type", log.Type),
+		zap.String("name", log.Name),
+		zap.String("message", log.Message),
+		zap.String("extra", string(log.Extra)))
+
 	if err := h.logService.RecordErrorLog(c.Request.Context(), &log); err != nil {
-		h.logger.Error("Failed to record error log", zap.Error(err))
+		h.logger.Error("Failed to record error log 111", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to record error log"})
 		return
 	}
 
+	h.logger.Debug("Error log recorded successfully")
 	c.JSON(http.StatusCreated, gin.H{"message": "Error log recorded successfully"})
 }
 
