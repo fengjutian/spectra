@@ -250,3 +250,16 @@
 {"level":"INFO","time":"2025-11-05 21:06:00","caller":"spectra-backend/main.go:50","msg":"Starting server","address":"0.0.0.0:8080"}
 {"level":"INFO","time":"2025-11-05 21:06:19","caller":"middleware/logger.go:74","msg":"HTTP Request","status":200,"method":"GET","path":"/api/error-logs","ip":"::1","latency":0.4015676}
 {"level":"INFO","time":"2025-11-05 21:06:25","caller":"middleware/logger.go:74","msg":"HTTP Request","status":200,"method":"GET","path":"/api/error-logs","ip":"::1","latency":0.0929907}
+{"level":"ERROR","time":"2025-11-05 21:46:28","caller":"handlers/log_handler.go:154","msg":"Failed to record user action","error":"failed to save user action: Post \"https://ci5eaxwoe9.asia-southeast1.gcp.clickhouse.cloud:8443?database=default&default_format=Native\": context canceled"}
+{"level":"INFO","time":"2025-11-05 21:46:28","caller":"middleware/logger.go:74","msg":"HTTP Request","status":500,"method":"POST","path":"/api/user-actions","ip":"::1","latency":22.0640904}
+{"level":"INFO","time":"2025-11-05 21:47:18","caller":"middleware/logger.go:74","msg":"HTTP Request","status":201,"method":"POST","path":"/api/performance-metrics","ip":"::1","latency":0.4839992}
+{"level":"ERROR","time":"2025-11-05 21:47:23","caller":"handlers/log_handler.go:136","msg":"Failed to get performance metrics","error":"failed to query performance metrics: clickhouse: unsupported column type \"JSON\""}
+{"level":"INFO","time":"2025-11-05 21:47:23","caller":"middleware/logger.go:74","msg":"HTTP Request","status":500,"method":"GET","path":"/api/performance-metrics","ip":"::1","latency":0.085349}
+{"level":"INFO","time":"2025-11-05 21:47:25","caller":"middleware/logger.go:74","msg":"HTTP Request","status":201,"method":"POST","path":"/api/user-actions","ip":"::1","latency":0.2035748}
+{"level":"ERROR","time":"2025-11-05 21:47:28","caller":"handlers/log_handler.go:178","msg":"Failed to get user actions","error":"failed to query user actions: clickhouse: unsupported column type \"JSON\""}
+{"level":"INFO","time":"2025-11-05 21:47:28","caller":"middleware/logger.go:74","msg":"HTTP Request","status":500,"method":"GET","path":"/api/user-actions","ip":"::1","latency":0.1182589}
+{"level":"INFO","time":"2025-11-05 21:47:29","caller":"middleware/logger.go:74","msg":"HTTP Request","status":201,"method":"POST","path":"/api/custom-events","ip":"::1","latency":0.1753108}
+{"level":"ERROR","time":"2025-11-05 21:47:31","caller":"handlers/log_handler.go:235","msg":"Failed to get custom events","error":"failed to query custom events: clickhouse: unsupported column type \"JSON\""}
+{"level":"INFO","time":"2025-11-05 21:47:31","caller":"middleware/logger.go:74","msg":"HTTP Request","status":500,"method":"GET","path":"/api/custom-events","ip":"::1","latency":0.0732428}
+{"level":"INFO","time":"2025-11-05 21:47:32","caller":"middleware/logger.go:74","msg":"HTTP Request","status":201,"method":"POST","path":"/api/page-stays","ip":"::1","latency":0.179062}
+{"level":"INFO","time":"2025-11-05 21:47:33","caller":"middleware/logger.go:74","msg":"HTTP Request","status":200,"method":"GET","path":"/api/page-stays/average","ip":"::1","latency":0.1305124}
