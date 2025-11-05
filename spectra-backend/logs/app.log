@@ -32,3 +32,7 @@
 {"level":"INFO","time":"2025-11-05 17:48:17","caller":"repository/clickhouse_repository.go:55","msg":"Testing database connection..."}
 {"level":"INFO","time":"2025-11-05 17:48:18","caller":"repository/clickhouse_repository.go:61","msg":"Successfully connected to ClickHouse database"}
 {"level":"INFO","time":"2025-11-05 17:48:18","caller":"spectra-backend/main.go:38","msg":"Starting server","address":"0.0.0.0:8080"}
+{"level":"INFO","time":"2025-11-05 19:48:02","caller":"repository/clickhouse_repository.go:36","msg":"Initializing ClickHouse connection","host":"ci5eaxwoe9.asia-southeast1.gcp.clickhouse.cloud","port":8443,"database":"default","username":"default","debug":true}
+{"level":"INFO","time":"2025-11-05 19:48:02","caller":"repository/clickhouse_repository.go:64","msg":"Testing database connection..."}
+{"level":"INFO","time":"2025-11-05 19:48:23","caller":"repository/clickhouse_repository.go:70","msg":"Successfully connected to ClickHouse database"}
+{"level":"INFO","time":"2025-11-05 19:48:23","caller":"spectra-backend/main.go:38","msg":"Starting server","address":"0.0.0.0:8080"}
