@@ -112,10 +112,16 @@ func (r *ClickHouseRepository) SaveErrorLog(ctx context.Context, log *models.Err
 	// 定义SQL插入语句，包含错误日志的所有字段
 	query := `INSERT INTO error_logs (timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, extra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 	
+	// 将Extra字段转换为字符串，如果为空则使用空JSON对象
+	extraStr := string(log.Extra)
+	if extraStr == "" {
+		extraStr = "{}"
+	}
+	
 	// 执行插入操作，使用ExecContext支持上下文取消和超时
 	_, err := r.DB.ExecContext(ctx, query, 
 		log.Timestamp, log.ProjectID, log.SessionID, log.TraceID, log.UserID,
-		log.URL, log.Referrer, log.Type, log.Name, log.Message, log.Extra)
+		log.URL, log.Referrer, log.Type, log.Name, log.Message, extraStr)
 	if err != nil {
 		return fmt.Errorf("failed to save error log: %w", err)
 	}
@@ -200,10 +206,16 @@ func (r *ClickHouseRepository) SavePerformanceMetric(ctx context.Context, metric
 	// 定义SQL插入语句，包含性能指标的所有字段
 	query := `INSERT INTO performance_metrics (timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, value, extra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 	
+	// 将Extra字段转换为字符串，如果为空则使用空JSON对象
+	extraStr := string(metric.Extra)
+	if extraStr == "" {
+		extraStr = "{}"
+	}
+	
 	// 执行插入操作
 	_, err := r.DB.ExecContext(ctx, query, 
 		metric.Timestamp, metric.ProjectID, metric.SessionID, metric.TraceID, metric.UserID,
-		metric.URL, metric.Referrer, metric.Type, metric.Name, metric.Value, metric.Extra)
+		metric.URL, metric.Referrer, metric.Type, metric.Name, metric.Value, extraStr)
 	if err != nil {
 		return fmt.Errorf("failed to save performance metric: %w", err)
 	}
@@ -297,11 +309,17 @@ func (r *ClickHouseRepository) SaveUserAction(ctx context.Context, action *model
 	// 定义SQL插入语句，包含用户行为的所有字段
 	query := `INSERT INTO user_actions (timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, method, status, value, extra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 	
+	// 将Extra字段转换为字符串，如果为空则使用空JSON对象
+	extraStr := string(action.Extra)
+	if extraStr == "" {
+		extraStr = "{}"
+	}
+	
 	// 执行插入操作
 	_, err := r.DB.ExecContext(ctx, query, 
 		action.Timestamp, action.ProjectID, action.SessionID, action.TraceID, action.UserID,
 		action.URL, action.Referrer, action.Type, action.Name, action.Message, action.Method,
-		action.Status, action.Value, action.Extra)
+		action.Status, action.Value, extraStr)
 	if err != nil {
 		return fmt.Errorf("failed to save user action: %w", err)
 	}
@@ -397,10 +415,16 @@ func (r *ClickHouseRepository) SaveCustomEvent(ctx context.Context, event *model
 	// 定义SQL插入语句，包含自定义事件的所有字段
 	query := `INSERT INTO custom_events (timestamp, project_id, session_id, trace_id, user_id, url, referrer, type, name, message, extra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 	
+	// 将Extra字段转换为字符串，如果为空则使用空JSON对象
+	extraStr := string(event.Extra)
+	if extraStr == "" {
+		extraStr = "{}"
+	}
+	
 	// 执行插入操作
 	_, err := r.DB.ExecContext(ctx, query, 
 		event.Timestamp, event.ProjectID, event.SessionID, event.TraceID, event.UserID,
-		event.URL, event.Referrer, event.Type, event.Name, event.Message, event.Extra)
+		event.URL, event.Referrer, event.Type, event.Name, event.Message, extraStr)
 	if err != nil {
 		return fmt.Errorf("failed to save custom event: %w", err)
 	}
